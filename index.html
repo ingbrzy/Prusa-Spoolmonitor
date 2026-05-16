@@ -396,13 +396,6 @@
   }
   .config-btn:hover { background: #c9420a; }
 
-  .config-btn.secondary {
-    background: transparent;
-    color: var(--orange);
-    border: 2px solid var(--orange);
-    margin-top: 8px;
-  }
-
   /* TOGGLE SWITCH (DARK MODE) */
   .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -511,7 +504,6 @@
         <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60" />
       </div>
       <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ</button>
-      <button class="config-btn secondary" onclick="loadDemo()">🎭 UKÁŽKOVÉ DÁTA</button>
     </div>
   </div>
 </div>
@@ -552,7 +544,6 @@ let CONFIG = {
 };
 
 let refreshTimer = null;
-let useDemoData = false;
 
 // ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
 if (CONFIG.darkMode) {
@@ -629,7 +620,7 @@ function renderCard(spool, data) {
 
   let statusBadge = '';
   if (!hasData || isSpoolEmpty) {
-    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
+    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
   } else if (gaugeVal < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
   } else {
@@ -746,37 +737,16 @@ async function fetchSheetData() {
   }
 }
 
-// ─── DEMO DATA ─────────────────────────────────────────────────────────────
-function getDemoData() {
-  return {
-    'spool-01': { material: 'PETG Jet Black', color: '24292A', weight: 0, length: 0, ts: '16.5. 09:31', staleMinutes: 0, isEmpty: false },
-    'spool-02': { material: 'PETG Jet Black', color: '24292A', weight: 265.1, length: 88.9, ts: '16.5. 09:31', staleMinutes: 0, isEmpty: false },
-    'spool-03': { material: 'PETG Jet Black', color: '24292A', weight: 0, length: 0, ts: '16.5. 09:27', staleMinutes: 4, isEmpty: false },
-    'spool-04': { material: 'PETG Jet Black', color: '24292A', weight: 570.9, length: 191.4, ts: '16.5. 09:24', staleMinutes: 7, isEmpty: false },
-    'spool-05': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 92.2, length: 30.9, ts: '16.5. 09:21', staleMinutes: 10, isEmpty: false },
-    'spool-XL01': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 709.5, length: 237.9, ts: '11.5. 10:04', staleMinutes: 7167, isEmpty: true },
-    'spool-XL02': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 437.5, length: 146.7, ts: '16.5. 09:23', staleMinutes: 8, isEmpty: false },
-    'spool-XL03': { material: 'PC Blend Natural', color: 'DFDFD3', weight: 61.9, length: 20.8, ts: '16.5. 09:25', staleMinutes: 6, isEmpty: false },
-    'spool-XL04': { material: 'PLA Royal Blue', color: '00518F', weight: 465.2, length: 156, ts: '16.5. 09:28', staleMinutes: 3, isEmpty: false },
-    'spool-XL05': { material: 'PETG Jet Black', color: '24292A', weight: 93.9, length: 31.5, ts: '16.5. 09:27', staleMinutes: 4, isEmpty: false },
-  };
-}
-
 // ─── REFRESH ────────────────────────────────────────────────────────────────
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
 
-  let dataMap;
-  if (useDemoData) {
-    dataMap = getDemoData();
-  } else {
-    dataMap = await fetchSheetData();
-    if (!dataMap) dataMap = getDemoData();
-  }
+  let dataMap = await fetchSheetData();
+  if (!dataMap) dataMap = {}; // Fallback na prázdne dáta pri chybe spojenia
 
   renderDashboard(dataMap);
   document.getElementById('lastUpdate').textContent =
-    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk') + (useDemoData ? ' (ukážkové dáta)' : '');
+    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk');
   document.getElementById('refreshDot').style.background = '#4caf50';
   hideLoader();
 }
@@ -815,17 +785,10 @@ function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
   localStorage.setItem('interval', CONFIG.interval);
   
-  useDemoData = false;
   closeConfig();
   startAutoRefresh();
   
   document.getElementById('loadingOverlay').classList.remove('hidden');
-  refreshData();
-}
-
-function loadDemo() {
-  useDemoData = true;
-  closeConfig();
   refreshData();
 }
 
