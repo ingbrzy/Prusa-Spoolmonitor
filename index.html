@@ -841,6 +841,17 @@ async function fetchSheetData() {
           isEmpty:      row.isEmpty || false
         };
       });
+
+      // Zdieľanie teploty a vlhkosti z XL05 pre XL01 až XL04
+      const xl05 = map['spool-XL05'];
+      if (xl05) {
+        ['spool-XL01', 'spool-XL02', 'spool-XL03', 'spool-XL04'].forEach(id => {
+          if (map[id]) {
+            if (xl05.temp !== null) map[id].temp = xl05.temp;
+            if (xl05.hum !== null) map[id].hum = xl05.hum;
+          }
+        });
+      }
     }
     return map;
   } catch (e) {
