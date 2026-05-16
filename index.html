@@ -506,7 +506,6 @@
 
 <div class="overlay" id="overlay" onclick="closeConfig()"></div>
 
-<!-- CONFIG PANEL -->
 <div class="config-panel" id="configPanel">
   <div class="config-header">
     <div class="config-title">⚙ NASTAVENIA</div>
@@ -544,7 +543,6 @@
   </div>
 </div>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-logo">
     <img src="MAS.png" alt="MAS" class="mas-img" />
@@ -555,7 +553,6 @@
   </div>
 </div>
 
-<!-- CONTROLS -->
 <div class="controls">
   <div style="display:flex;align-items:center;gap:10px;">
     <div class="refresh-indicator" id="refreshDot"></div>
@@ -567,7 +564,6 @@
   </div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="dashboard">
   <div class="section-row" id="row-mk3s"></div>
   <div class="section-row" id="row-xl"></div>
@@ -604,8 +600,6 @@ function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
   const cx = 100, cy = 98, r = 74;
 
-  // Convert degree to SVG coordinate
-  // 0° = right, 90° = up (SVG y-axis inverted), 180° = left
   function polar(deg) {
     const rad = deg * Math.PI / 180;
     return [
@@ -614,19 +608,14 @@ function createGaugeSVG(value, max) {
     ];
   }
 
-  // Gauge: left (180°) → right (0°) clockwise through bottom
   const [sx, sy] = polar(180);
   const [ex, ey] = polar(0);
 
-  // Full semicircle track (large-arc=1, sweep=1 = clockwise)
   const trackPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
-  // Fill: from 180° clockwise, pct fraction of 180°
-  // fillDeg goes from 180 down to 0 as pct goes 0 to 1
   const fillDeg = 180 - pct * 180;
   const [fx, fy] = polar(fillDeg);
 
-  // Since we always sweep <= 180°, large-arc is always 0
   let fillPath = '';
   if (pct > 0.001) {
     fillPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 0 1 ${fx.toFixed(2)} ${fy.toFixed(2)}`;
@@ -644,18 +633,20 @@ function createGaugeSVG(value, max) {
 
 // ─── RENDER CARD ───────────────────────────────────────────────────────────
 function renderCard(spool, data) {
-  const hasData = data && data.weight !== null;
-  const weight = hasData ? parseFloat((data.weight || '0').replace(',', '.')) : null;
-  const length = hasData ? parseFloat((data.length || '0').replace(',', '.')) : null;
+  const hasData = !!data;
+  const isSpoolEmpty = hasData ? data.isEmpty : true;
+  const weight = hasData && data.weight !== null ? data.weight : null;
+  const length = hasData && data.length !== null ? data.length : null;
   const material = hasData ? (data.material || '') : '';
   const colorHex = hasData ? (data.color || 'FFFFFF') : 'FFFFFF';
-  const timestamp = hasData ? data.timestamp : null;
+  const ts = hasData ? data.ts : null;
+  const staleMinutes = hasData ? data.staleMinutes : null;
 
   const maxWeight = 1000;
   const gaugeVal = weight !== null ? weight : 0;
 
   let statusBadge = '';
-  if (!hasData) {
+  if (!hasData || isSpoolEmpty) {
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } else if (gaugeVal < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
@@ -664,18 +655,20 @@ function renderCard(spool, data) {
   }
 
   let timeAgo = '';
-  if (timestamp) {
-    const diff = Math.floor((Date.now() - new Date(timestamp)) / 60000);
-    if (diff < 1) timeAgo = 'práve teraz';
-    else if (diff === 1) timeAgo = 'pred 1 min';
-    else if (diff < 60) timeAgo = `pred ${diff} min`;
-    else timeAgo = `pred ${Math.floor(diff/60)} hod`;
+  if (ts) {
+    if (staleMinutes === 0) timeAgo = 'práve teraz';
+    else if (staleMinutes === 1) timeAgo = 'pred 1 min';
+    else if (staleMinutes < 60) timeAgo = `pred ${staleMinutes} min`;
+    else if (staleMinutes < 1440) timeAgo = `pred ${Math.floor(staleMinutes/60)} hod`;
+    else timeAgo = `pred ${Math.floor(staleMinutes/1440)} dňami`;
+    
+    timeAgo = `${ts} (${timeAgo})`;
   }
 
   const bgStyle = `#${colorHex.replace('#','')}`;
 
   return `
-    <div class="card${!hasData ? ' no-tag empty-spool' : ''}">
+    <div class="card${!hasData || isSpoolEmpty ? ' no-tag empty-spool' : ''}">
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
@@ -683,8 +676,8 @@ function renderCard(spool, data) {
 
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
-        <div class="gauge-value" style="color:${gaugeVal < 50 && hasData ? '#e65100' : '#1a1a1a'}">
-          ${hasData ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+        <div class="gauge-value" style="color:${gaugeVal < 50 && hasData && !isSpoolEmpty ? '#e65100' : '#1a1a1a'}">
+          ${weight !== null ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
         </div>
         <div class="gauge-minmax">
           <span>0</span>
@@ -700,8 +693,8 @@ function renderCard(spool, data) {
 
       <div class="stat-row">
         <span class="stat-label">Dĺžka (m)</span>
-        <span class="stat-value${!hasData ? ' empty' : ''}">
-          ${hasData && length !== null ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+        <span class="stat-value${weight === null ? ' empty' : ''}">
+          ${length !== null ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
         </span>
       </div>
 
@@ -731,19 +724,23 @@ async function fetchSheetData() {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    // Normalize: replace Slovak comma decimals to dots for parseFloat later
+    
     const map = {};
-    for (const [id, row] of Object.entries(json)) {
-      map[id] = {
-        nfc:       row.nfc || '',
-        material:  row.material || '',
-        color:     (row.color || 'FFFFFF').replace('#', ''),
-        weight:    row.weight !== null ? row.weight : null,
-        length:    row.length !== null ? row.length : null,
-        temp:      row.temp || null,
-        hum:       row.hum || null,
-        timestamp: row.timestamp || null,
-      };
+    if (json && json.spools && Array.isArray(json.spools)) {
+      json.spools.forEach(row => {
+        map[row.id] = {
+          nfc:          row.nfc || '',
+          material:     row.material || '',
+          color:        (row.color || 'FFFFFF').replace('#', ''),
+          weight:       typeof row.weight === 'number' ? row.weight : null,
+          length:       typeof row.length === 'number' ? row.length : null,
+          temp:         row.temp !== null ? row.temp : null,
+          hum:          row.hum !== null ? row.hum : null,
+          ts:           row.ts || null,
+          staleMinutes: row.staleMinutes !== null ? row.staleMinutes : null,
+          isEmpty:      row.isEmpty || false
+        };
+      });
     }
     return map;
   } catch (e) {
@@ -754,18 +751,17 @@ async function fetchSheetData() {
 
 // ─── DEMO DATA ─────────────────────────────────────────────────────────────
 function getDemoData() {
-  const ago = (m) => new Date(Date.now() - m * 60000).toISOString();
   return {
-    'spool-01': { material: 'PETG Jet Black', color: '111111', weight: '0,0', length: '0', timestamp: ago(2) },
-    'spool-02': { material: 'PETG Jet Black', color: '111111', weight: '265,4', length: '89', timestamp: ago(6) },
-    'spool-03': { material: 'PETG Jet Black', color: '111111', weight: '0,0', length: '0', timestamp: ago(10) },
-    'spool-04': { material: 'PETG Jet Black', color: '111111', weight: '570,8', length: '191,4', timestamp: ago(9) },
-    'spool-05': { material: 'PLA Blend Royal Blue', color: '1565C0', weight: '92,2', length: '30,9', timestamp: ago(1) },
-    'spool-XL01': { material: '', color: 'FFFFFF', weight: null, length: null, timestamp: null },
-    'spool-XL02': { material: 'PLA Blend Royal Blue', color: '1565C0', weight: '436,2', length: '146,2', timestamp: ago(4) },
-    'spool-XL03': { material: 'PC Blend Natural', color: 'E8E0D0', weight: '61,3', length: '20,6', timestamp: ago(8) },
-    'spool-XL04': { material: 'PLA Royal Blue', color: '1A237E', weight: '465,6', length: '156,1', timestamp: ago(5) },
-    'spool-XL05': { material: 'PETG Jet Black', color: '111111', weight: '93,3', length: '31,3', timestamp: ago(10) },
+    'spool-01': { material: 'PETG Jet Black', color: '24292A', weight: 0, length: 0, ts: '16.5. 09:31', staleMinutes: 0, isEmpty: false },
+    'spool-02': { material: 'PETG Jet Black', color: '24292A', weight: 265.1, length: 88.9, ts: '16.5. 09:31', staleMinutes: 0, isEmpty: false },
+    'spool-03': { material: 'PETG Jet Black', color: '24292A', weight: 0, length: 0, ts: '16.5. 09:27', staleMinutes: 4, isEmpty: false },
+    'spool-04': { material: 'PETG Jet Black', color: '24292A', weight: 570.9, length: 191.4, ts: '16.5. 09:24', staleMinutes: 7, isEmpty: false },
+    'spool-05': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 92.2, length: 30.9, ts: '16.5. 09:21', staleMinutes: 10, isEmpty: false },
+    'spool-XL01': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 709.5, length: 237.9, ts: '11.5. 10:04', staleMinutes: 7167, isEmpty: true },
+    'spool-XL02': { material: 'PLA Blend Royal Blue', color: '00518F', weight: 437.5, length: 146.7, ts: '16.5. 09:23', staleMinutes: 8, isEmpty: false },
+    'spool-XL03': { material: 'PC Blend Natural', color: 'DFDFD3', weight: 61.9, length: 20.8, ts: '16.5. 09:25', staleMinutes: 6, isEmpty: false },
+    'spool-XL04': { material: 'PLA Royal Blue', color: '00518F', weight: 465.2, length: 156, ts: '16.5. 09:28', staleMinutes: 3, isEmpty: false },
+    'spool-XL05': { material: 'PETG Jet Black', color: '24292A', weight: 93.9, length: 31.5, ts: '16.5. 09:27', staleMinutes: 4, isEmpty: false },
   };
 }
 
@@ -831,13 +827,8 @@ function startAutoRefresh() {
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  // Render empty cards immediately
   renderDashboard({});
-
-  // Start refresh cycle
   startAutoRefresh();
-
-  // Load data (demo if no config)
   setTimeout(refreshData, 400);
 });
 </script>
