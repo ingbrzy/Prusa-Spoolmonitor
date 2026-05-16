@@ -105,6 +105,12 @@
     100% { stroke-dashoffset: var(--target-offset); }
   }
 
+  /* Nová animácia pre blikanie varovného textu */
+  @keyframes alertBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
   /* KARTA BEZ ANIMÁCIE (ŠTANDARDNÝ STAV) */
   .card {
     background: var(--card-bg);
@@ -276,8 +282,20 @@
   }
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
-  .status-low { background: #fff3e0; color: #e65100; }
-  .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; }
+  
+  /* Pridané blikanie (alertBlink) pre kritické stavy */
+  .status-low { 
+    background: #fff3e0; 
+    color: #e65100; 
+    animation: alertBlink 1.5s infinite ease-in-out; 
+  }
+  .status-empty { 
+    background: #fce4e4; 
+    color: #c62828; 
+    border: 1px solid #ef9a9a; 
+    animation: alertBlink 1.5s infinite ease-in-out; 
+  }
+  
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   body.dark-theme .status-ok { background: rgba(46, 125, 50, 0.2); color: #81c784; }
