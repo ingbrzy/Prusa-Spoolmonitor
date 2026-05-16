@@ -105,6 +105,9 @@
   }
 
   .card-header {
+    white-space: nowrap;
+    overflow: hidden;
+    min-height: 24px;
     display: flex;
     align-items: baseline;
     gap: 6px;
@@ -115,6 +118,7 @@
     font-size: 18px;
     font-weight: 700;
     color: var(--orange);
+    flex-shrink: 0;
     letter-spacing: 0.5px;
   }
 
@@ -123,6 +127,9 @@
     font-weight: 600;
     color: var(--dark);
     letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* GAUGE */
@@ -605,36 +612,42 @@ const XL_SPOOLS = [
 // ─── GAUGE SVG ─────────────────────────────────────────────────────────────
 function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
-  const cx = 100, cy = 100, r = 75;
-  const startAngle = -Math.PI;
-  const endAngle = 0;
-  const totalAngle = endAngle - startAngle;
+  const cx = 100, cy = 98, r = 74;
 
-  function polar(angle) {
-    return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+  // Convert degree to SVG coordinate
+  // 0° = right, 90° = up (SVG y-axis inverted), 180° = left
+  function polar(deg) {
+    const rad = deg * Math.PI / 180;
+    return [
+      cx + r * Math.cos(rad),
+      cy - r * Math.sin(rad)
+    ];
   }
 
-  const [sx, sy] = polar(startAngle);
-  const [ex, ey] = polar(endAngle);
+  // Gauge: left (180°) → right (0°) clockwise through bottom
+  const [sx, sy] = polar(180);
+  const [ex, ey] = polar(0);
 
-  // Track
-  const trackPath = `M ${sx} ${sy} A ${r} ${r} 0 1 1 ${ex} ${ey}`;
+  // Full semicircle track (large-arc=1, sweep=1 = clockwise)
+  const trackPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
-  // Fill
-  const fillAngle = startAngle + totalAngle * pct;
-  const [fx, fy] = polar(fillAngle);
-  const largeArc = pct > 0.5 ? 1 : 0;
+  // Fill: from 180° clockwise, pct fraction of 180°
+  // fillDeg goes from 180 down to 0 as pct goes 0 to 1
+  const fillDeg = 180 - pct * 180;
+  const [fx, fy] = polar(fillDeg);
+
+  // Since we always sweep <= 180°, large-arc is always 0
   let fillPath = '';
-  if (pct > 0) {
-    fillPath = `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}`;
+  if (pct > 0.001) {
+    fillPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 0 1 ${fx.toFixed(2)} ${fy.toFixed(2)}`;
   }
 
   const color = pct <= 0 ? '#ddd' : pct < 0.15 ? '#e65100' : '#E8500A';
 
   return `
-    <svg viewBox="0 0 200 110" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
-      <path d="${trackPath}" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
-      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"/>` : ''}
+    <svg viewBox="0 0 200 108" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
+      <path d="${trackPath}" fill="none" stroke="#e0e0e0" stroke-width="13" stroke-linecap="round"/>
+      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"/>` : ''}
     </svg>
   `;
 }
