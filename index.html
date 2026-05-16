@@ -174,29 +174,26 @@
     height: 100%;
   }
 
+  /* Zlúčená hodnota a label vnútri grafu */
   .gauge-value {
     position: absolute;
-    bottom: 18px;
+    bottom: 12px;
     left: 0;
     right: 0;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .val-text {
     font-size: 22px;
     font-weight: 700;
-    color: var(--dark);
-    font-family: 'Montserrat', sans-serif;
     line-height: 1;
   }
 
-  .gauge-minmax {
-    position: absolute;
-    bottom: 2px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 4px;
-  }
-
-  .gauge-minmax span {
+  .val-label {
     font-size: 9px;
     color: var(--text-light);
     font-weight: 500;
@@ -777,10 +774,8 @@ function renderCard(spool, data, index = 0) {
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
         <div class="gauge-value" style="color:${gaugeVal < 50 && !isHolderEmpty ? '#e65100' : 'var(--dark)'}">
-          ${weightDisplay}
-        </div>
-        <div class="gauge-minmax">
-          <span style="position:absolute;left:50%;transform:translateX(-50%);color:var(--text-light);font-size:9px;">Váha (g)</span>
+          <span class="val-text">${weightDisplay}</span>
+          <span class="val-label">Váha (g)</span>
         </div>
       </div>
 
