@@ -606,7 +606,7 @@ function createGaugeSVG(value, max) {
 // ─── RENDER CARD ───────────────────────────────────────────────────────────
 function renderCard(spool, data) {
   const hasData = !!data;
-  const isSpoolEmpty = hasData ? data.isEmpty : true;
+  let isSpoolEmpty = hasData ? data.isEmpty : true;
   const weight = hasData && data.weight !== null ? data.weight : null;
   const length = hasData && data.length !== null ? data.length : null;
   const material = hasData ? (data.material || '') : '';
@@ -614,13 +614,18 @@ function renderCard(spool, data) {
   const ts = hasData ? data.ts : null;
   const staleMinutes = hasData ? data.staleMinutes : null;
 
+  // Ak je váha 0 alebo menej, vynútime stav prázdnej cievky
+  if (weight !== null && weight <= 0) {
+    isSpoolEmpty = true;
+  }
+
   const maxWeight = 1000;
   
   const gaugeVal = (weight !== null && !isSpoolEmpty) ? weight : 0;
 
   let statusBadge = '';
   if (!hasData || isSpoolEmpty) {
-    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
+    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } else if (gaugeVal < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
   } else {
