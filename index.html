@@ -190,6 +190,7 @@
   .material-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
   }
 
@@ -219,6 +220,7 @@
   .stat-row {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 2px;
   }
 
@@ -228,6 +230,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-align: center;
   }
 
   .stat-value {
@@ -261,7 +264,7 @@
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
   .status-low { background: #fff3e0; color: #e65100; }
-  .status-empty { background: #fafafa; color: #aaa; border: 1px solid #ddd; }
+  .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   /* LOADER */
@@ -666,7 +669,7 @@ function renderCard(spool, data) {
 
   let statusBadge = '';
   if (!hasData) {
-    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Žiadne údaje</span>`;
+    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } else if (gaugeVal < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
   } else {
@@ -685,7 +688,7 @@ function renderCard(spool, data) {
   const bgStyle = `#${colorHex.replace('#','')}`;
 
   return `
-    <div class="card${!hasData ? ' no-tag' : ''}">
+    <div class="card${!hasData ? ' no-tag empty-spool' : ''}">
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
