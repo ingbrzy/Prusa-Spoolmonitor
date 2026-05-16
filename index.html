@@ -16,7 +16,19 @@
     --bg: #f5f5f5;
     --card-bg: #ffffff;
     --gauge-bg: #e8e8e8;
-    --gauge-track: #d0d0d0;
+    --gauge-track: #e0e0e0;
+  }
+
+  /* DARK THEME VARIABLES */
+  body.dark-theme {
+    --bg: #121212;
+    --card-bg: #1e1e1e;
+    --text: #e0e0e0;
+    --text-light: #999;
+    --border: #333;
+    --dark: #ffffff;
+    --gauge-bg: #2a2a2a;
+    --gauge-track: #3a3a3a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,11 +38,12 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
   }
 
   /* HEADER */
   .header {
-    background: white;
+    background: var(--card-bg);
     padding: 14px 28px;
     display: flex;
     align-items: center;
@@ -40,19 +53,12 @@
     top: 0;
     z-index: 100;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: background-color 0.3s, border-color 0.3s;
   }
 
-  .header-logo {
-    display: flex;
-    align-items: center;
-  }
-
-  .mas-img {
-    height: 44px;
-    width: auto;
-    object-fit: contain;
-  }
-
+  .header-logo { display: flex; align-items: center; }
+  .mas-img { height: 44px; width: auto; object-fit: contain; }
+  
   .header-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 26px;
@@ -61,17 +67,11 @@
     color: var(--dark);
   }
 
-  .prusa-logo {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
+  .prusa-logo { display: flex; align-items: center; justify-content: flex-end; }
+  .prusa-img { height: 44px; width: auto; object-fit: contain; }
 
-  .prusa-img {
-    height: 44px;
-    width: auto;
-    object-fit: contain;
-  }
+  /* Mierne stmavenie lôg v dark mode */
+  body.dark-theme .mas-img, body.dark-theme .prusa-img { filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.2)); }
 
   /* MAIN GRID */
   .dashboard {
@@ -93,15 +93,15 @@
     border-radius: 10px;
     padding: 16px 18px 14px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
   }
 
   .card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   }
 
   .card-header {
@@ -144,20 +144,6 @@
     height: 100%;
   }
 
-  .gauge-label {
-    position: absolute;
-    bottom: 2px;
-    left: 0;
-    right: 0;
-    text-align: center;
-  }
-
-  .gauge-label-text {
-    font-size: 10px;
-    color: var(--text-light);
-    font-weight: 500;
-  }
-
   .gauge-value {
     position: absolute;
     bottom: 18px;
@@ -192,6 +178,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-height: 22px;
   }
 
   .color-dot {
@@ -201,6 +188,7 @@
     border: 2px solid rgba(0,0,0,0.12);
     flex-shrink: 0;
   }
+  body.dark-theme .color-dot { border: 2px solid rgba(255,255,255,0.15); }
 
   .material-name {
     font-size: 13px;
@@ -212,8 +200,7 @@
   }
 
   .material-name.empty {
-    color: #999;
-    font-style: italic;
+    color: var(--text-light);
   }
 
   /* STATS */
@@ -241,11 +228,11 @@
     line-height: 1.1;
   }
 
-  .stat-value.empty { color: #bbb; }
+  .stat-value.empty { color: var(--text-light); }
 
   .timestamp {
     font-size: 10px;
-    color: #aaa;
+    color: var(--text-light);
     font-weight: 400;
     margin-top: 2px;
   }
@@ -267,6 +254,11 @@
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+  /* DARK THEME BADGES */
+  body.dark-theme .status-ok { background: rgba(46, 125, 50, 0.2); color: #81c784; }
+  body.dark-theme .status-low { background: rgba(230, 81, 0, 0.2); color: #ffb74d; }
+  body.dark-theme .status-empty { background: rgba(198, 40, 40, 0.2); color: #e57373; border-color: rgba(229, 115, 115, 0.3); }
+
   /* LOADER */
   .loading-overlay {
     position: fixed;
@@ -278,7 +270,7 @@
     justify-content: center;
     z-index: 999;
     gap: 16px;
-    transition: opacity 0.4s;
+    transition: opacity 0.4s, background-color 0.3s;
   }
 
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
@@ -286,7 +278,7 @@
   .loader-ring {
     width: 48px;
     height: 48px;
-    border: 4px solid #e0e0e0;
+    border: 4px solid var(--border);
     border-top-color: var(--orange);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -298,7 +290,7 @@
     font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     letter-spacing: 2px;
-    color: #999;
+    color: var(--text-light);
   }
 
   /* CONFIG PANEL */
@@ -307,11 +299,11 @@
     top: 0; right: 0;
     width: 380px;
     height: 100vh;
-    background: white;
+    background: var(--card-bg);
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
     z-index: 200;
     transform: translateX(100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s;
     display: flex;
     flex-direction: column;
   }
@@ -331,6 +323,7 @@
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 1px;
+    color: var(--dark);
   }
 
   .config-close {
@@ -338,7 +331,7 @@
     border: none;
     cursor: pointer;
     font-size: 22px;
-    color: #999;
+    color: var(--text-light);
     padding: 4px;
     line-height: 1;
   }
@@ -349,9 +342,7 @@
     padding: 20px 24px;
   }
 
-  .config-section {
-    margin-bottom: 24px;
-  }
+  .config-section { margin-bottom: 24px; }
 
   .config-section-title {
     font-size: 11px;
@@ -361,12 +352,10 @@
     color: var(--text-light);
     margin-bottom: 12px;
     padding-bottom: 6px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
   }
 
-  .config-field {
-    margin-bottom: 14px;
-  }
+  .config-field { margin-bottom: 14px; }
 
   .config-label {
     font-size: 12px;
@@ -379,14 +368,15 @@
   .config-input {
     width: 100%;
     padding: 9px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'Montserrat', sans-serif;
     font-size: 13px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.3s, color 0.3s;
   }
-
   .config-input:focus { border-color: var(--orange); }
 
   .config-btn {
@@ -404,15 +394,28 @@
     transition: background 0.2s;
     margin-top: 6px;
   }
-
   .config-btn:hover { background: #c9420a; }
 
   .config-btn.secondary {
-    background: white;
+    background: transparent;
     color: var(--orange);
     border: 2px solid var(--orange);
     margin-top: 8px;
   }
+
+  /* TOGGLE SWITCH (DARK MODE) */
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: var(--border); transition: .3s; border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background-color: white; transition: .3s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--orange); }
+  input:checked + .slider:before { transform: translateX(20px); }
 
   /* TOP CONTROLS */
   .controls {
@@ -424,40 +427,29 @@
     margin: 0 auto;
   }
 
-  .last-update {
-    font-size: 12px;
-    color: #aaa;
-  }
+  .last-update { font-size: 12px; color: var(--text-light); }
 
-  .controls-right {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+  .controls-right { display: flex; gap: 8px; align-items: center; }
 
   .btn-icon {
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
     border-radius: 7px;
     padding: 7px 14px;
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
-    color: var(--text-light);
+    color: var(--text);
     display: flex;
     align-items: center;
     gap: 6px;
     transition: all 0.2s;
     font-family: 'Montserrat', sans-serif;
   }
-
   .btn-icon:hover { background: var(--orange); color: white; border-color: var(--orange); }
 
   .refresh-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4caf50;
+    width: 8px; height: 8px; border-radius: 50%; background: #4caf50;
     animation: pulse 2s infinite;
   }
 
@@ -468,18 +460,14 @@
 
   /* OVERLAY */
   .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.3);
-    z-index: 190;
-    display: none;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 190; display: none; transition: opacity 0.3s;
   }
   .overlay.show { display: block; }
 
   /* CARD MODIFICATIONS FOR EMPTY SPOOL */
-  .card.empty-spool {
-    opacity: 0.75;
-  }
+  .card.empty-spool { opacity: 0.75; }
+  body.dark-theme .card.empty-spool { opacity: 0.5; }
 
   @media (max-width: 1100px) {
     .section-row { grid-template-columns: repeat(3, 1fr); }
@@ -506,20 +494,24 @@
   </div>
   <div class="config-body">
     <div class="config-section">
-      <div class="config-section-title">Google Apps Script URL</div>
-      <div class="config-field">
-        <label class="config-label">Web App URL (z Deploy → Manage deployments)</label>
-        <input class="config-input" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/..." />
+      <div class="config-section-title">Vzhľad</div>
+      <div class="config-field" style="display:flex; align-items:center; justify-content:space-between;">
+        <label class="config-label" style="margin:0;">Tmavý režim (Dark mode)</label>
+        <label class="switch">
+          <input type="checkbox" id="cfgDarkMode" onchange="toggleDarkMode()">
+          <span class="slider round"></span>
+        </label>
       </div>
-      <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ A NAČÍTAŤ</button>
-      <button class="config-btn secondary" onclick="loadDemo()">🎭 UKÁŽKOVÉ DÁTA</button>
     </div>
+
     <div class="config-section">
       <div class="config-section-title">Automatická obnova</div>
       <div class="config-field">
         <label class="config-label">Interval obnovy (minúty)</label>
         <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60" />
       </div>
+      <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ</button>
+      <button class="config-btn secondary" onclick="loadDemo()">🎭 UKÁŽKOVÉ DÁTA</button>
     </div>
   </div>
 </div>
@@ -552,12 +544,20 @@
 
 <script>
 // ─── CONFIG ────────────────────────────────────────────────────────────────
+const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbx9s_1ZtZWvnLcaMMHCKziu2fZdqXWcaiJ47197buBIW533-KCTv1td0vsD_voGS_-M/exec';
+
 let CONFIG = {
-  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwnrXg4YUoPhDWNhmIHvhaJkw85-CRRPEduOEFhW656TD9Ze9alGcOw_lInQUTtxekx/exec',
-  interval: parseInt(localStorage.getItem('interval') || '2')
+  interval: parseInt(localStorage.getItem('interval') || '2'),
+  darkMode: localStorage.getItem('darkMode') === 'true'
 };
 
 let refreshTimer = null;
+let useDemoData = false;
+
+// ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
+if (CONFIG.darkMode) {
+  document.body.classList.add('dark-theme');
+}
 
 // ─── SPOOL DEFINITIONS ─────────────────────────────────────────────────────
 const MK3S_SPOOLS = [
@@ -602,11 +602,11 @@ function createGaugeSVG(value, max) {
     fillPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 0 1 ${fx.toFixed(2)} ${fy.toFixed(2)}`;
   }
 
-  const color = pct <= 0 ? '#ddd' : pct < 0.15 ? '#e65100' : '#E8500A';
+  const color = pct <= 0 ? 'var(--gauge-track)' : pct < 0.15 ? '#e65100' : '#E8500A';
 
   return `
     <svg viewBox="0 0 200 108" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
-      <path d="${trackPath}" fill="none" stroke="#e0e0e0" stroke-width="13" stroke-linecap="round"/>
+      <path d="${trackPath}" fill="none" stroke="var(--gauge-track)" stroke-width="13" stroke-linecap="round"/>
       ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"/>` : ''}
     </svg>
   `;
@@ -625,7 +625,6 @@ function renderCard(spool, data) {
 
   const maxWeight = 1000;
   
-  // Ak je cievka označená ako prázdna, budík vizuálne spadne na 0 g
   const gaugeVal = (weight !== null && !isSpoolEmpty) ? weight : 0;
 
   let statusBadge = '';
@@ -650,7 +649,6 @@ function renderCard(spool, data) {
 
   const bgStyle = `#${colorHex.replace('#','')}`;
 
-  // Formátovanie hodnôt: ak je prázdna, vynútime zobrazenie pomlčky "-"
   const weightDisplay = (weight !== null && !isSpoolEmpty) 
     ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
     : '-';
@@ -658,6 +656,17 @@ function renderCard(spool, data) {
   const lengthDisplay = (length !== null && !isSpoolEmpty) 
     ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
     : '-';
+
+  // Ak je cievka prázdna, nezobrazí sa farebná bodka ani názov, iba "-"
+  let materialDisplay = '';
+  if (isSpoolEmpty) {
+    materialDisplay = `<span class="material-name empty">-</span>`;
+  } else {
+    materialDisplay = `
+      <div class="color-dot" style="background:${bgStyle};"></div>
+      <span class="material-name${!material ? ' empty' : ''}">${material || 'Neznámy materiál'}</span>
+    `;
+  }
 
   return `
     <div class="card${!hasData || isSpoolEmpty ? ' empty-spool' : ''}">
@@ -668,19 +677,18 @@ function renderCard(spool, data) {
 
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
-        <div class="gauge-value" style="color:${gaugeVal < 50 && hasData && !isSpoolEmpty ? '#e65100' : '#1a1a1a'}">
+        <div class="gauge-value" style="color:${gaugeVal < 50 && hasData && !isSpoolEmpty ? '#e65100' : 'var(--dark)'}">
           ${weightDisplay}
         </div>
         <div class="gauge-minmax">
           <span>0</span>
-          <span style="position:absolute;left:50%;transform:translateX(-50%);color:#aaa;font-size:9px;">Váha (g)</span>
+          <span style="position:absolute;left:50%;transform:translateX(-50%);color:var(--text-light);font-size:9px;">Váha (g)</span>
           <span>1 tis.</span>
         </div>
       </div>
 
       <div class="material-row">
-        <div class="color-dot" style="background:${bgStyle};"></div>
-        <span class="material-name${!material ? ' empty' : ''}">${material || 'Neznámy materiál'}</span>
+        ${materialDisplay}
       </div>
 
       <div class="stat-row">
@@ -707,10 +715,7 @@ function renderDashboard(dataMap) {
 
 // ─── FETCH FROM GOOGLE APPS SCRIPT ─────────────────────────────────────────
 async function fetchSheetData() {
-  const { scriptUrl } = CONFIG;
-  if (!scriptUrl) return null;
-
-  const url = `${scriptUrl}?action=getData`;
+  const url = `${HARDCODED_URL}?action=getData`;
 
   try {
     const res = await fetch(url);
@@ -761,14 +766,17 @@ function getDemoData() {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
 
-  let dataMap = await fetchSheetData();
-  if (!dataMap) {
+  let dataMap;
+  if (useDemoData) {
     dataMap = getDemoData();
+  } else {
+    dataMap = await fetchSheetData();
+    if (!dataMap) dataMap = getDemoData();
   }
 
   renderDashboard(dataMap);
   document.getElementById('lastUpdate').textContent =
-    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk');
+    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk') + (useDemoData ? ' (ukážkové dáta)' : '');
   document.getElementById('refreshDot').style.background = '#4caf50';
   hideLoader();
 }
@@ -777,10 +785,10 @@ function hideLoader() {
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
-// ─── CONFIG UI ──────────────────────────────────────────────────────────────
+// ─── CONFIG UI & THEME ──────────────────────────────────────────────────────
 function openConfig() {
-  document.getElementById('cfgScriptUrl').value = CONFIG.scriptUrl;
   document.getElementById('cfgInterval').value = CONFIG.interval;
+  document.getElementById('cfgDarkMode').checked = CONFIG.darkMode;
   document.getElementById('configPanel').classList.add('open');
   document.getElementById('overlay').classList.add('show');
 }
@@ -790,25 +798,35 @@ function closeConfig() {
   document.getElementById('overlay').classList.remove('show');
 }
 
+function toggleDarkMode() {
+  const isDark = document.getElementById('cfgDarkMode').checked;
+  CONFIG.darkMode = isDark;
+  localStorage.setItem('darkMode', isDark);
+
+  if (isDark) {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+}
+
 // ─── INIT ───────────────────────────────────────────────────────────────────
 function saveAndLoad() {
-  CONFIG.scriptUrl = document.getElementById('cfgScriptUrl').value.trim();
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
-
-  localStorage.setItem('scriptUrl', CONFIG.scriptUrl);
   localStorage.setItem('interval', CONFIG.interval);
-
+  
+  useDemoData = false;
   closeConfig();
   startAutoRefresh();
+  
+  document.getElementById('loadingOverlay').classList.remove('hidden');
   refreshData();
 }
 
 function loadDemo() {
+  useDemoData = true;
   closeConfig();
-  renderDashboard(getDemoData());
-  document.getElementById('lastUpdate').textContent =
-    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk') + ' (ukážkové dáta)';
-  hideLoader();
+  refreshData();
 }
 
 function startAutoRefresh() {
