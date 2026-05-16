@@ -56,10 +56,7 @@
     transition: background-color 0.3s, border-color 0.3s;
   }
 
-  /* Specifická farba hlavičky pre Dark mode podľa požiadavky */
-  body.dark-theme .header {
-    background: #c0c0c0;
-  }
+  body.dark-theme .header { background: #c0c0c0; }
 
   .header-logo { display: flex; align-items: center; }
   .mas-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
@@ -74,15 +71,11 @@
     text-align: center;
   }
 
-  /* Aby bol text čitateľný na #c0c0c0 v Dark mode */
-  body.dark-theme .header-title {
-    color: #1a1a1a;
-  }
+  body.dark-theme .header-title { color: #1a1a1a; }
 
   .prusa-logo { display: flex; align-items: center; justify-content: flex-end; }
   .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
 
-  /* Mierne stmavenie lôg v dark mode (aby neťahali oči, ak treba) */
   body.dark-theme .mas-img, body.dark-theme .prusa-img { filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.2)); }
 
   /* MAIN GRID */
@@ -99,6 +92,19 @@
     margin-bottom: 14px;
   }
 
+  /* ───────────────────────────────────────────────────────── */
+  /* ANIMÁCIE                                                  */
+  /* ───────────────────────────────────────────────────────── */
+  @keyframes cardPop {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes gaugeFill {
+    0% { stroke-dashoffset: 232.48; }
+    100% { stroke-dashoffset: var(--target-offset); }
+  }
+
   /* CARD */
   .card {
     background: var(--card-bg);
@@ -110,6 +116,9 @@
     flex-direction: column;
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
+    /* Pripravené na animáciu (začína neviditeľná) */
+    opacity: 0; 
+    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
 
   .card:hover {
@@ -260,7 +269,7 @@
     padding: 3px 9px;
     border-radius: 20px;
     letter-spacing: 0.3px;
-    align-self: center; /* Zabráni natiahnutiu na celú šírku a vycentruje prvok */
+    align-self: center;
   }
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
@@ -268,7 +277,6 @@
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  /* DARK THEME BADGES */
   body.dark-theme .status-ok { background: rgba(46, 125, 50, 0.2); color: #81c784; }
   body.dark-theme .status-low { background: rgba(230, 81, 0, 0.2); color: #ffb74d; }
   body.dark-theme .status-empty { background: rgba(198, 40, 40, 0.2); color: #e57373; border-color: rgba(229, 115, 115, 0.3); }
@@ -411,7 +419,7 @@
   }
   .config-btn:hover { background: #c9420a; }
 
-  /* TOGGLE SWITCH (DARK MODE) */
+  /* TOGGLE SWITCH */
   .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider {
@@ -467,7 +475,6 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
-  /* OVERLAY */
   .overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.5);
     z-index: 190; display: none; transition: opacity 0.3s;
@@ -478,7 +485,7 @@
   .card.empty-holder { opacity: 0.75; }
   body.dark-theme .card.empty-holder { opacity: 0.5; }
 
-  /* RESPONZÍVNY DIZAJN (MEDIA QUERIES) PRE MOBILY A TABLETY */
+  /* MEDIA QUERIES */
   @media (max-width: 1200px) {
     .section-row { grid-template-columns: repeat(4, 1fr); }
   }
@@ -498,23 +505,11 @@
     .dashboard { padding: 16px; }
     .section-row { grid-template-columns: 1fr; gap: 12px; } 
     
-    .controls { 
-      flex-direction: column; 
-      align-items: flex-start; 
-      gap: 12px; 
-      padding: 12px 16px 0; 
-    }
-    .controls-right { 
-      width: 100%; 
-      display: flex; 
-      gap: 10px; 
-    }
+    .controls { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px 16px 0; }
+    .controls-right { width: 100%; display: flex; gap: 10px; }
     .btn-icon { flex: 1; }
     
-    .gauge-container { 
-      max-width: 280px; 
-      margin: 0 auto; 
-    }
+    .gauge-container { max-width: 280px; margin: 0 auto; }
   }
 </style>
 </head>
@@ -543,7 +538,6 @@
         </label>
       </div>
     </div>
-
     <div class="config-section">
       <div class="config-section-title">Automatická obnova</div>
       <div class="config-field">
@@ -615,7 +609,7 @@ const XL_SPOOLS = [
   { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
 ];
 
-// ─── GAUGE SVG ─────────────────────────────────────────────────────────────
+// ─── GAUGE SVG S ANIMÁCIOU ─────────────────────────────────────────────────
 function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
   const cx = 100, cy = 98, r = 74;
@@ -628,31 +622,31 @@ function createGaugeSVG(value, max) {
     ];
   }
 
+  // Celá dráha polkruhu
   const [sx, sy] = polar(180);
   const [ex, ey] = polar(0);
-
-  const trackPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
-
-  const fillDeg = 180 - pct * 180;
-  const [fx, fy] = polar(fillDeg);
-
-  let fillPath = '';
-  if (pct > 0.001) {
-    fillPath = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 0 1 ${fx.toFixed(2)} ${fy.toFixed(2)}`;
-  }
+  const pathDef = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
   const color = pct <= 0 ? 'var(--gauge-track)' : pct < 0.15 ? '#e65100' : '#E8500A';
 
+  // Výpočet dĺžky krivky (pi * r) pre CSS animáciu (stroke-dasharray)
+  const pathLength = 232.48;
+  const targetOffset = pathLength * (1 - pct);
+
   return `
     <svg viewBox="0 0 200 108" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
-      <path d="${trackPath}" fill="none" stroke="var(--gauge-track)" stroke-width="13" stroke-linecap="round"/>
-      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"/>` : ''}
+      <path d="${pathDef}" fill="none" stroke="var(--gauge-track)" stroke-width="13" stroke-linecap="round"/>
+      ${pct > 0.001 ? `
+        <path d="${pathDef}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"
+              stroke-dasharray="${pathLength}" 
+              style="--target-offset: ${targetOffset}; animation: gaugeFill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;" />
+      ` : ''}
     </svg>
   `;
 }
 
-// ─── RENDER CARD ───────────────────────────────────────────────────────────
-function renderCard(spool, data) {
+// ─── RENDER CARD S INDEXOM PRE STAGGER EFEKT ───────────────────────────────
+function renderCard(spool, data, index = 0) {
   const hasData = !!data;
   const jsonIsEmpty = hasData ? data.isEmpty : true;
   const weight = hasData && data.weight !== null ? data.weight : null;
@@ -667,21 +661,14 @@ function renderCard(spool, data) {
   let isHolderEmpty = false;
   let statusBadge = '';
 
-  // 1. Podmienka pre prázdny držiak
   if (!hasData || jsonIsEmpty || (staleMinutes !== null && staleMinutes > 120)) {
     isHolderEmpty = true;
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
-  } 
-  // 2. Podmienka pre prázdnu cievku
-  else if (weight === 0) {
+  } else if (weight === 0) {
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
-  } 
-  // 3. Podmienka pre málo filamentu
-  else if (weight !== null && weight < 50) {
+  } else if (weight !== null && weight < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
-  } 
-  // 4. OK
-  else {
+  } else {
     statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
   }
 
@@ -718,8 +705,9 @@ function renderCard(spool, data) {
     `;
   }
 
+  // Pridaný "animation-delay" podľa poradia pre pekný postupný nástup elementov
   return `
-    <div class="card${isHolderEmpty ? ' empty-holder' : ''}">
+    <div class="card${isHolderEmpty ? ' empty-holder' : ''}" style="animation-delay: ${index * 0.05}s">
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
@@ -759,8 +747,9 @@ function renderDashboard(dataMap) {
   const mk3sEl = document.getElementById('row-mk3s');
   const xlEl = document.getElementById('row-xl');
 
-  mk3sEl.innerHTML = MK3S_SPOOLS.map(s => renderCard(s, dataMap[s.id] || null)).join('');
-  xlEl.innerHTML = XL_SPOOLS.map(s => renderCard(s, dataMap[s.id] || null)).join('');
+  // Posielame index na prepočet oneskorenia animácie
+  mk3sEl.innerHTML = MK3S_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i)).join('');
+  xlEl.innerHTML = XL_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length)).join('');
 }
 
 // ─── FETCH FROM GOOGLE APPS SCRIPT ─────────────────────────────────────────
