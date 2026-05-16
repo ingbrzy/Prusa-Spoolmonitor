@@ -105,7 +105,7 @@
     100% { stroke-dashoffset: var(--target-offset); }
   }
 
-  /* CARD */
+  /* KARTA BEZ ANIMÁCIE (ŠTANDARDNÝ STAV) */
   .card {
     background: var(--card-bg);
     border-radius: 10px;
@@ -116,13 +116,16 @@
     flex-direction: column;
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
-    /* Pripravené na animáciu (začína neviditeľná) */
-    opacity: 0; 
-    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
 
   .card:hover {
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  /* TRIEDA PRIDÁVANÁ LEN PRI PRVOM NAČÍTANÍ */
+  .animate-pop {
+    opacity: 0;
+    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
 
   .card-header {
@@ -586,6 +589,9 @@ let CONFIG = {
 
 let refreshTimer = null;
 
+// Sleduje, či ide o úplne prvé načítanie stránky v prehliadači
+let isInitialLoad = true;
+
 // ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
 if (CONFIG.darkMode) {
   document.body.classList.add('dark-theme');
@@ -609,7 +615,7 @@ const XL_SPOOLS = [
   { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
 ];
 
-// ─── GAUGE SVG S ANIMÁCIOU ─────────────────────────────────────────────────
+// ─── GAUGE SVG S PODMIENENOU ANIMÁCIOU ─────────────────────────────────────
 function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
   const cx = 100, cy = 98, r = 74;
@@ -622,16 +628,19 @@ function createGaugeSVG(value, max) {
     ];
   }
 
-  // Celá dráha polkruhu
   const [sx, sy] = polar(180);
   const [ex, ey] = polar(0);
   const pathDef = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
   const color = pct <= 0 ? 'var(--gauge-track)' : pct < 0.15 ? '#e65100' : '#E8500A';
 
-  // Výpočet dĺžky krivky (pi * r) pre CSS animáciu (stroke-dasharray)
   const pathLength = 232.48;
   const targetOffset = pathLength * (1 - pct);
+
+  // Aplikuje animáciu výplne grafu len pri úvodnom načítaní
+  const animStyle = isInitialLoad 
+    ? `style="--target-offset: ${targetOffset}; animation: gaugeFill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;"`
+    : `style="stroke-dashoffset: ${targetOffset};"`;
 
   return `
     <svg viewBox="0 0 200 108" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
@@ -639,13 +648,13 @@ function createGaugeSVG(value, max) {
       ${pct > 0.001 ? `
         <path d="${pathDef}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"
               stroke-dasharray="${pathLength}" 
-              style="--target-offset: ${targetOffset}; animation: gaugeFill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;" />
+              ${animStyle} />
       ` : ''}
     </svg>
   `;
 }
 
-// ─── RENDER CARD S INDEXOM PRE STAGGER EFEKT ───────────────────────────────
+// ─── RENDER CARD S PODMIENENOU ANIMÁCIOU ───────────────────────────────────
 function renderCard(spool, data, index = 0) {
   const hasData = !!data;
   const jsonIsEmpty = hasData ? data.isEmpty : true;
@@ -705,9 +714,12 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
-  // Pridaný "animation-delay" podľa poradia pre pekný postupný nástup elementov
+  // Pre úvodné načítanie priradíme animáciu, inak ostane bežná karta
+  const animClass = isInitialLoad ? ' animate-pop' : '';
+  const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
+
   return `
-    <div class="card${isHolderEmpty ? ' empty-holder' : ''}" style="animation-delay: ${index * 0.05}s">
+    <div class="card${isHolderEmpty ? ' empty-holder' : ''}${animClass}" ${animStyle}>
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
@@ -747,7 +759,6 @@ function renderDashboard(dataMap) {
   const mk3sEl = document.getElementById('row-mk3s');
   const xlEl = document.getElementById('row-xl');
 
-  // Posielame index na prepočet oneskorenia animácie
   mk3sEl.innerHTML = MK3S_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i)).join('');
   xlEl.innerHTML = XL_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length)).join('');
 }
@@ -793,6 +804,10 @@ async function refreshData() {
   if (!dataMap) dataMap = {}; 
 
   renderDashboard(dataMap);
+  
+  // Po úplne prvom reálnom načítaní dát vypneme efekt skákania (pre ďalšie refreshe)
+  isInitialLoad = false;
+  
   document.getElementById('lastUpdate').textContent =
     'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk');
   document.getElementById('refreshDot').style.background = '#4caf50';
@@ -845,10 +860,10 @@ function startAutoRefresh() {
   refreshTimer = setInterval(refreshData, CONFIG.interval * 60 * 1000);
 }
 
+// Odstránené zbytočné vykresľovanie prázdnych elementov pred zistením skutočných dát
 window.addEventListener('DOMContentLoaded', () => {
-  renderDashboard({});
   startAutoRefresh();
-  setTimeout(refreshData, 400);
+  refreshData();
 });
 </script>
 </body>
