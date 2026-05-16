@@ -233,12 +233,20 @@
     color: var(--text-light);
   }
 
-  /* STATS */
-  .stat-row {
+  /* ŠTATISTIKY (Teplota, Dĺžka, Vlhkosť) */
+  .stats-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+  }
+
+  .stat-col {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
+    flex: 1;
   }
 
   .stat-label {
@@ -252,7 +260,7 @@
 
   .stat-value {
     font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     color: var(--dark);
     line-height: 1.1;
@@ -731,6 +739,30 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
+  // Príprava teploty
+  let tempHtml = '';
+  if (hasData && data.temp !== null && data.temp !== undefined && data.temp !== '') {
+    const tempDisplay = isHolderEmpty ? '-' : `${Number(data.temp).toLocaleString('sk', {maximumFractionDigits:1})} °C`;
+    tempHtml = `
+      <div class="stat-col">
+        <span class="stat-label">Teplota</span>
+        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">${tempDisplay}</span>
+      </div>
+    `;
+  }
+
+  // Príprava vlhkosti
+  let humHtml = '';
+  if (hasData && data.hum !== null && data.hum !== undefined && data.hum !== '') {
+    const humDisplay = isHolderEmpty ? '-' : `${Number(data.hum).toLocaleString('sk', {maximumFractionDigits:0})} %`;
+    humHtml = `
+      <div class="stat-col">
+        <span class="stat-label">Vlhkosť</span>
+        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">${humDisplay}</span>
+      </div>
+    `;
+  }
+
   // Pre úvodné načítanie priradíme animáciu, inak ostane bežná karta
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
@@ -758,11 +790,15 @@ function renderCard(spool, data, index = 0) {
         ${materialDisplay}
       </div>
 
-      <div class="stat-row">
-        <span class="stat-label">Dĺžka (m)</span>
-        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">
-          ${lengthDisplay}
-        </span>
+      <div class="stats-container">
+        ${tempHtml}
+        <div class="stat-col">
+          <span class="stat-label">Dĺžka (m)</span>
+          <span class="stat-value${isHolderEmpty ? ' empty' : ''}">
+            ${lengthDisplay}
+          </span>
+        </div>
+        ${humHtml}
       </div>
 
       ${statusBadge}
