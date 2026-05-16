@@ -458,9 +458,9 @@
   }
   .overlay.show { display: block; }
 
-  /* CARD MODIFICATIONS FOR EMPTY SPOOL */
-  .card.empty-spool { opacity: 0.75; }
-  body.dark-theme .card.empty-spool { opacity: 0.5; }
+  /* CARD MODIFICATIONS FOR EMPTY HOLDER */
+  .card.empty-holder { opacity: 0.75; }
+  body.dark-theme .card.empty-holder { opacity: 0.5; }
 
   @media (max-width: 1100px) {
     .section-row { grid-template-columns: repeat(3, 1fr); }
@@ -617,7 +617,6 @@ function renderCard(spool, data) {
   const maxWeight = 1000;
   
   let isHolderEmpty = false;
-  let isSpoolEmpty = false;
   let statusBadge = '';
 
   // 1. Podmienka pre prázdny držiak: viac ako 120 minút neaktivity, žiadne dáta, alebo jsonIsEmpty
@@ -627,7 +626,6 @@ function renderCard(spool, data) {
   } 
   // 2. Podmienka pre prázdnu cievku: presne 0 g
   else if (weight === 0) {
-    isSpoolEmpty = true;
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } 
   // 3. Podmienka pre málo filamentu: pod 50 g (ale viac ako 0 g)
@@ -639,8 +637,8 @@ function renderCard(spool, data) {
     statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
   }
 
-  const treatAsEmpty = isHolderEmpty || isSpoolEmpty;
-  const gaugeVal = (weight !== null && !treatAsEmpty) ? weight : 0;
+  // Ak je držiak prázdny, ručička padá na nulu, rovnako ako keď je cievka 0 g
+  const gaugeVal = (weight !== null && !isHolderEmpty) ? weight : 0;
 
   let timeAgo = '';
   if (ts) {
@@ -655,17 +653,17 @@ function renderCard(spool, data) {
 
   const bgStyle = `#${colorHex.replace('#','')}`;
 
-  const weightDisplay = (!treatAsEmpty && weight !== null) 
+  // Hodnoty nahradíme pomlčkou IBA ak ide o prázdny držiak
+  const weightDisplay = (!isHolderEmpty && weight !== null) 
     ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
     : '-';
     
-  const lengthDisplay = (!treatAsEmpty && length !== null) 
+  const lengthDisplay = (!isHolderEmpty && length !== null) 
     ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
     : '-';
 
-  // Ak je držiak alebo cievka prázdna, nezobrazí sa farebná bodka ani názov
   let materialDisplay = '';
-  if (treatAsEmpty) {
+  if (isHolderEmpty) {
     materialDisplay = `<span class="material-name empty">-</span>`;
   } else {
     materialDisplay = `
@@ -675,7 +673,7 @@ function renderCard(spool, data) {
   }
 
   return `
-    <div class="card${treatAsEmpty ? ' empty-spool' : ''}">
+    <div class="card${isHolderEmpty ? ' empty-holder' : ''}">
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
@@ -683,7 +681,7 @@ function renderCard(spool, data) {
 
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
-        <div class="gauge-value" style="color:${gaugeVal < 50 && !treatAsEmpty ? '#e65100' : 'var(--dark)'}">
+        <div class="gauge-value" style="color:${gaugeVal < 50 && !isHolderEmpty ? '#e65100' : 'var(--dark)'}">
           ${weightDisplay}
         </div>
         <div class="gauge-minmax">
@@ -699,7 +697,7 @@ function renderCard(spool, data) {
 
       <div class="stat-row">
         <span class="stat-label">Dĺžka (m)</span>
-        <span class="stat-value${treatAsEmpty ? ' empty' : ''}">
+        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">
           ${lengthDisplay}
         </span>
       </div>
