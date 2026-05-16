@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filament Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E8500A;
+    --orange-light: #F4651F;
+    --dark: #1a1a1a;
+    --text: #333;
+    --text-light: #666;
+    --border: #e0e0e0;
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --gauge-bg: #e8e8e8;
+    --gauge-track: #d0d0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: white;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mas-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: -1px;
+  }
+
+  .mas-sub {
+    font-size: 10px;
+    color: #999;
+    font-weight: 400;
+    line-height: 1.2;
+    max-width: 120px;
+  }
+
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .prusa-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .prusa-brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 1px;
+  }
+
+  .prusa-sub {
+    font-size: 9px;
+    color: #aaa;
+    letter-spacing: 1px;
+  }
+
+  /* MAIN GRID */
+  .dashboard {
+    padding: 20px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .section-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px 18px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.2s;
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .printer-type {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 0.5px;
+  }
+
+  .printer-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: 0.3px;
+  }
+
+  /* GAUGE */
+  .gauge-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2/1.05;
+  }
+
+  .gauge-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gauge-label {
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  .gauge-label-text {
+    font-size: 10px;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .gauge-value {
+    position: absolute;
+    bottom: 18px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+    font-family: 'Barlow Condensed', sans-serif;
+    line-height: 1;
+  }
+
+  .gauge-minmax {
+    position: absolute;
+    bottom: 2px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+
+  .gauge-minmax span {
+    font-size: 9px;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  /* COLOR DOT + MATERIAL */
+  .material-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .color-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.12);
+    flex-shrink: 0;
+  }
+
+  .material-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .material-name.empty {
+    color: #999;
+    font-style: italic;
+  }
+
+  /* STATS */
+  .stat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.1;
+  }
+
+  .stat-value.empty { color: #bbb; }
+
+  .timestamp {
+    font-size: 10px;
+    color: #aaa;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* STATUS BADGE */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  .status-ok { background: #e8f5e9; color: #2e7d32; }
+  .status-low { background: #fff3e0; color: #e65100; }
+  .status-empty { background: #fafafa; color: #aaa; border: 1px solid #ddd; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* LOADER */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    gap: 16px;
+    transition: opacity 0.4s;
+  }
+
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .loader-ring {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e0e0e0;
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: #999;
+  }
+
+  /* CONFIG PANEL */
+  .config-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 380px;
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .config-panel.open { transform: translateX(0); }
+
+  .config-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .config-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .config-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    color: #999;
+    padding: 4px;
+    line-height: 1;
+  }
+
+  .config-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  .config-section {
+    margin-bottom: 24px;
+  }
+
+  .config-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .config-field {
+    margin-bottom: 14px;
+  }
+
+  .config-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .config-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .config-input:focus { border-color: var(--orange); }
+
+  .config-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 6px;
+  }
+
+  .config-btn:hover { background: #c9420a; }
+
+  .config-btn.secondary {
+    background: white;
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    margin-top: 8px;
+  }
+
+  /* TOP CONTROLS */
+  .controls {
+    padding: 12px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .last-update {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .controls-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-icon {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .btn-icon:hover { background: var(--orange); color: white; border-color: var(--orange); }
+
+  .refresh-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* OVERLAY */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 190;
+    display: none;
+  }
+  .overlay.show { display: block; }
+
+  /* EMPTY STATE */
+  .no-data {
+    text-align: center;
+    padding: 16px 0;
+    color: #bbb;
+    font-size: 12px;
+  }
+
+  .card.no-tag {
+    opacity: 0.65;
+  }
+
+  @media (max-width: 1100px) {
+    .section-row { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .section-row { grid-template-columns: repeat(2, 1fr); }
+    .header-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <div class="loading-text">NAČÍTAVAM DÁTA...</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeConfig()"></div>
+
+<!-- CONFIG PANEL -->
+<div class="config-panel" id="configPanel">
+  <div class="config-header">
+    <div class="config-title">⚙ NASTAVENIA</div>
+    <button class="config-close" onclick="closeConfig()">✕</button>
+  </div>
+  <div class="config-body">
+    <div class="config-section">
+      <div class="config-section-title">Google Sheets API</div>
+      <div class="config-field">
+        <label class="config-label">Google Sheet ID</label>
+        <input class="config-input" id="cfgSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+      </div>
+      <div class="config-field">
+        <label class="config-label">API Kľúč (Google Sheets API v4)</label>
+        <input class="config-input" id="cfgApiKey" placeholder="AIzaSy..." />
+      </div>
+      <div class="config-field">
+        <label class="config-label">Hárok – Prehľad (napr. PREHLAD)</label>
+        <input class="config-input" id="cfgSheet" value="PREHLAD" />
+      </div>
+      <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ A NAČÍTAŤ</button>
+      <button class="config-btn secondary" onclick="loadDemo()">🎭 UKÁŽKOVÉ DÁTA</button>
+    </div>
+    <div class="config-section">
+      <div class="config-section-title">Automatická obnova</div>
+      <div class="config-field">
+        <label class="config-label">Interval obnovy (minúty)</label>
+        <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60" />
+      </div>
+    </div>
+    <div class="config-section">
+      <div class="config-section-title">Stĺpce v hárku PREHLAD</div>
+      <p style="font-size:11px;color:#999;line-height:1.6;">
+        Očakávaný formát (podľa tvojho Google Apps Scriptu):<br>
+        <strong>A</strong>: ID Držiaka &nbsp;
+        <strong>B</strong>: NFC UID &nbsp;
+        <strong>C</strong>: Materiál &nbsp;
+        <strong>D</strong>: Farba (HEX) &nbsp;
+        <strong>E</strong>: Váha (g) &nbsp;
+        <strong>F</strong>: Dĺžka (m) &nbsp;
+        <strong>G</strong>: Teplota &nbsp;
+        <strong>H</strong>: Vlhkosť &nbsp;
+        <strong>I</strong>: Čas
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">
+    <div>
+      <div class="mas-logo">MAS</div>
+      <div class="mas-sub">Minebea AccessSolutions</div>
+    </div>
+  </div>
+  <div class="header-title">FILAMENT MONITOR</div>
+  <div class="prusa-logo">
+    <div class="prusa-brand">PRUSA</div>
+    <div class="prusa-sub">RESEARCH · BY JOSEF PRUSA</div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="refresh-indicator" id="refreshDot"></div>
+    <span class="last-update" id="lastUpdate">Posledná aktualizácia: –</span>
+  </div>
+  <div class="controls-right">
+    <button class="btn-icon" onclick="refreshData()">↻ OBNOVIŤ</button>
+    <button class="btn-icon" onclick="openConfig()">⚙ NASTAVENIA</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <div class="section-row" id="row-mk3s"></div>
+  <div class="section-row" id="row-xl"></div>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+let CONFIG = {
+  sheetId: localStorage.getItem('sheetId') || '',
+  apiKey: localStorage.getItem('apiKey') || '',
+  sheet: localStorage.getItem('sheet') || 'PREHLAD',
+  interval: parseInt(localStorage.getItem('interval') || '2')
+};
+
+let refreshTimer = null;
+
+// ─── SPOOL DEFINITIONS ─────────────────────────────────────────────────────
+const MK3S_SPOOLS = [
+  { id: 'spool-01', label: 'PRUSA 01', type: 'MK3S' },
+  { id: 'spool-02', label: 'PRUSA 02', type: 'MK3S' },
+  { id: 'spool-03', label: 'PRUSA 03', type: 'MK3S' },
+  { id: 'spool-04', label: 'PRUSA 04', type: 'MK4S' },
+  { id: 'spool-05', label: 'PRUSA 05', type: 'MK4S' },
+];
+
+const XL_SPOOLS = [
+  { id: 'spool-XL01', label: 'TOOL 01', type: 'XL' },
+  { id: 'spool-XL02', label: 'TOOL 02', type: 'XL' },
+  { id: 'spool-XL03', label: 'TOOL 03', type: 'XL' },
+  { id: 'spool-XL04', label: 'TOOL 04', type: 'XL' },
+  { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
+];
+
+// ─── GAUGE SVG ─────────────────────────────────────────────────────────────
+function createGaugeSVG(value, max) {
+  const pct = max > 0 ? Math.min(value / max, 1) : 0;
+  const cx = 100, cy = 100, r = 75;
+  const startAngle = -Math.PI;
+  const endAngle = 0;
+  const totalAngle = endAngle - startAngle;
+
+  function polar(angle) {
+    return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+  }
+
+  const [sx, sy] = polar(startAngle);
+  const [ex, ey] = polar(endAngle);
+
+  // Track
+  const trackPath = `M ${sx} ${sy} A ${r} ${r} 0 1 1 ${ex} ${ey}`;
+
+  // Fill
+  const fillAngle = startAngle + totalAngle * pct;
+  const [fx, fy] = polar(fillAngle);
+  const largeArc = pct > 0.5 ? 1 : 0;
+  let fillPath = '';
+  if (pct > 0) {
+    fillPath = `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}`;
+  }
+
+  const color = pct <= 0 ? '#ddd' : pct < 0.15 ? '#e65100' : '#E8500A';
+
+  return `
+    <svg viewBox="0 0 200 110" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
+      <path d="${trackPath}" fill="none" stroke="#e0e0e0" stroke-width="14" stroke-linecap="round"/>
+      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"/>` : ''}
+    </svg>
+  `;
+}
+
+// ─── RENDER CARD ───────────────────────────────────────────────────────────
+function renderCard(spool, data) {
+  const hasData = data && data.weight !== null;
+  const weight = hasData ? parseFloat((data.weight || '0').replace(',', '.')) : null;
+  const length = hasData ? parseFloat((data.length || '0').replace(',', '.')) : null;
+  const material = hasData ? (data.material || '') : '';
+  const colorHex = hasData ? (data.color || 'FFFFFF') : 'FFFFFF';
+  const timestamp = hasData ? data.timestamp : null;
+
+  const maxWeight = 1000;
+  const gaugeVal = weight !== null ? weight : 0;
+
+  let statusBadge = '';
+  if (!hasData) {
+    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Žiadne údaje</span>`;
+  } else if (gaugeVal < 50) {
+    statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
+  } else {
+    statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
+  }
+
+  let timeAgo = '';
+  if (timestamp) {
+    const diff = Math.floor((Date.now() - new Date(timestamp)) / 60000);
+    if (diff < 1) timeAgo = 'práve teraz';
+    else if (diff === 1) timeAgo = 'pred 1 min';
+    else if (diff < 60) timeAgo = `pred ${diff} min`;
+    else timeAgo = `pred ${Math.floor(diff/60)} hod`;
+  }
+
+  const bgStyle = `#${colorHex.replace('#','')}`;
+
+  return `
+    <div class="card${!hasData ? ' no-tag' : ''}">
+      <div class="card-header">
+        <span class="printer-type">${spool.type}</span>
+        <span class="printer-name">${spool.label}</span>
+      </div>
+
+      <div class="gauge-container">
+        ${createGaugeSVG(gaugeVal, maxWeight)}
+        <div class="gauge-value" style="color:${gaugeVal < 50 && hasData ? '#e65100' : '#1a1a1a'}">
+          ${hasData ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+        </div>
+        <div class="gauge-minmax">
+          <span>0</span>
+          <span style="position:absolute;left:50%;transform:translateX(-50%);color:#aaa;font-size:9px;">Váha (g)</span>
+          <span>1 tis.</span>
+        </div>
+      </div>
+
+      <div class="material-row">
+        <div class="color-dot" style="background:${bgStyle};"></div>
+        <span class="material-name${!material ? ' empty' : ''}">${material || 'Neznámy materiál'}</span>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-label">Dĺžka (m)</span>
+        <span class="stat-value${!hasData ? ' empty' : ''}">
+          ${hasData && length !== null ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+        </span>
+      </div>
+
+      ${statusBadge}
+      ${timeAgo ? `<div class="timestamp">${timeAgo}</div>` : '<div class="timestamp">–</div>'}
+    </div>
+  `;
+}
+
+// ─── RENDER ALL ────────────────────────────────────────────────────────────
+function renderDashboard(dataMap) {
+  const mk3sEl = document.getElementById('row-mk3s');
+  const xlEl = document.getElementById('row-xl');
+
+  mk3sEl.innerHTML = MK3S_SPOOLS.map(s => renderCard(s, dataMap[s.id] || null)).join('');
+  xlEl.innerHTML = XL_SPOOLS.map(s => renderCard(s, dataMap[s.id] || null)).join('');
+}
+
+// ─── FETCH FROM GOOGLE SHEETS ───────────────────────────────────────────────
+async function fetchSheetData() {
+  const { sheetId, apiKey, sheet } = CONFIG;
+  if (!sheetId || !apiKey) return null;
+
+  const range = encodeURIComponent(`${sheet}!A2:I100`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const rows = json.values || [];
+
+    const map = {};
+    for (const row of rows) {
+      const id = row[0];
+      if (!id) continue;
+      map[id] = {
+        nfc: row[1] || '',
+        material: row[2] || '',
+        color: row[3] || 'FFFFFF',
+        weight: row[4] || null,
+        length: row[5] || null,
+        temp: row[6] || null,
+        hum: row[7] || null,
+        timestamp: row[8] || null,
+      };
+    }
+    return map;
+  } catch (e) {
+    console.error('Chyba pri načítaní:', e);
+    return null;
+  }
+}
+
+// ─── DEMO DATA ─────────────────────────────────────────────────────────────
+function getDemoData() {
+  const ago = (m) => new Date(Date.now() - m * 60000).toISOString();
+  return {
+    'spool-01': { material: 'PETG Jet Black', color: '111111', weight: '0,0', length: '0', timestamp: ago(2) },
+    'spool-02': { material: 'PETG Jet Black', color: '111111', weight: '265,4', length: '89', timestamp: ago(6) },
+    'spool-03': { material: 'PETG Jet Black', color: '111111', weight: '0,0', length: '0', timestamp: ago(10) },
+    'spool-04': { material: 'PETG Jet Black', color: '111111', weight: '570,8', length: '191,4', timestamp: ago(9) },
+    'spool-05': { material: 'PLA Blend Royal Blue', color: '1565C0', weight: '92,2', length: '30,9', timestamp: ago(1) },
+    'spool-XL01': { material: '', color: 'FFFFFF', weight: null, length: null, timestamp: null },
+    'spool-XL02': { material: 'PLA Blend Royal Blue', color: '1565C0', weight: '436,2', length: '146,2', timestamp: ago(4) },
+    'spool-XL03': { material: 'PC Blend Natural', color: 'E8E0D0', weight: '61,3', length: '20,6', timestamp: ago(8) },
+    'spool-XL04': { material: 'PLA Royal Blue', color: '1A237E', weight: '465,6', length: '156,1', timestamp: ago(5) },
+    'spool-XL05': { material: 'PETG Jet Black', color: '111111', weight: '93,3', length: '31,3', timestamp: ago(10) },
+  };
+}
+
+// ─── REFRESH ────────────────────────────────────────────────────────────────
+async function refreshData() {
+  document.getElementById('refreshDot').style.background = '#ff9800';
+
+  let dataMap;
+  if (CONFIG.sheetId && CONFIG.apiKey) {
+    dataMap = await fetchSheetData();
+  }
+  if (!dataMap) {
+    dataMap = getDemoData();
+  }
+
+  renderDashboard(dataMap);
+  document.getElementById('lastUpdate').textContent =
+    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk');
+  document.getElementById('refreshDot').style.background = '#4caf50';
+  hideLoader();
+}
+
+function hideLoader() {
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+// ─── CONFIG UI ──────────────────────────────────────────────────────────────
+function openConfig() {
+  document.getElementById('cfgSheetId').value = CONFIG.sheetId;
+  document.getElementById('cfgApiKey').value = CONFIG.apiKey;
+  document.getElementById('cfgSheet').value = CONFIG.sheet;
+  document.getElementById('cfgInterval').value = CONFIG.interval;
+  document.getElementById('configPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeConfig() {
+  document.getElementById('configPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function saveAndLoad() {
+  CONFIG.sheetId = document.getElementById('cfgSheetId').value.trim();
+  CONFIG.apiKey = document.getElementById('cfgApiKey').value.trim();
+  CONFIG.sheet = document.getElementById('cfgSheet').value.trim() || 'PREHLAD';
+  CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
+
+  localStorage.setItem('sheetId', CONFIG.sheetId);
+  localStorage.setItem('apiKey', CONFIG.apiKey);
+  localStorage.setItem('sheet', CONFIG.sheet);
+  localStorage.setItem('interval', CONFIG.interval);
+
+  closeConfig();
+  startAutoRefresh();
+  refreshData();
+}
+
+function loadDemo() {
+  CONFIG.sheetId = '';
+  CONFIG.apiKey = '';
+  closeConfig();
+  renderDashboard(getDemoData());
+  document.getElementById('lastUpdate').textContent =
+    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk') + ' (ukážkové dáta)';
+  hideLoader();
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshData, CONFIG.interval * 60 * 1000);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Render empty cards immediately
+  renderDashboard({});
+
+  // Start refresh cycle
+  startAutoRefresh();
+
+  // Load data (demo if no config)
+  setTimeout(refreshData, 400);
+});
+</script>
+</body>
+</html>
