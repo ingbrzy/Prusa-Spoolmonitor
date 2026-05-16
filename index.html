@@ -514,18 +514,10 @@
   </div>
   <div class="config-body">
     <div class="config-section">
-      <div class="config-section-title">Google Sheets API</div>
+      <div class="config-section-title">Google Apps Script URL</div>
       <div class="config-field">
-        <label class="config-label">Google Sheet ID</label>
-        <input class="config-input" id="cfgSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
-      </div>
-      <div class="config-field">
-        <label class="config-label">API Kľúč (Google Sheets API v4)</label>
-        <input class="config-input" id="cfgApiKey" placeholder="AIzaSy..." />
-      </div>
-      <div class="config-field">
-        <label class="config-label">Hárok – Prehľad (napr. PREHLAD)</label>
-        <input class="config-input" id="cfgSheet" value="PREHLAD" />
+        <label class="config-label">Web App URL (z Deploy → Manage deployments)</label>
+        <input class="config-input" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/..." />
       </div>
       <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ A NAČÍTAŤ</button>
       <button class="config-btn secondary" onclick="loadDemo()">🎭 UKÁŽKOVÉ DÁTA</button>
@@ -538,18 +530,15 @@
       </div>
     </div>
     <div class="config-section">
-      <div class="config-section-title">Stĺpce v hárku PREHLAD</div>
-      <p style="font-size:11px;color:#999;line-height:1.6;">
-        Očakávaný formát (podľa tvojho Google Apps Scriptu):<br>
-        <strong>A</strong>: ID Držiaka &nbsp;
-        <strong>B</strong>: NFC UID &nbsp;
-        <strong>C</strong>: Materiál &nbsp;
-        <strong>D</strong>: Farba (HEX) &nbsp;
-        <strong>E</strong>: Váha (g) &nbsp;
-        <strong>F</strong>: Dĺžka (m) &nbsp;
-        <strong>G</strong>: Teplota &nbsp;
-        <strong>H</strong>: Vlhkosť &nbsp;
-        <strong>I</strong>: Čas
+      <div class="config-section-title">Ako získať URL</div>
+      <p style="font-size:11px;color:#999;line-height:1.8;">
+        1. Otvor <strong>script.google.com</strong><br>
+        2. Nahraj nový <strong>Google_sheet.gs</strong><br>
+        3. <strong>Deploy → New deployment</strong><br>
+        4. Type: <strong>Web app</strong><br>
+        5. Execute as: <strong>Me</strong><br>
+        6. Who has access: <strong>Anyone</strong><br>
+        7. Skopíruj <strong>Web app URL</strong>
       </p>
     </div>
   </div>
@@ -587,9 +576,7 @@
 <script>
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 let CONFIG = {
-  sheetId: localStorage.getItem('sheetId') || '',
-  apiKey: localStorage.getItem('apiKey') || '',
-  sheet: localStorage.getItem('sheet') || 'PREHLAD',
+  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwnrXg4YUoPhDWNhmIHvhaJkw85-CRRPEduOEFhW656TD9Ze9alGcOw_lInQUTtxekx/exec',
   interval: parseInt(localStorage.getItem('interval') || '2')
 };
 
@@ -733,33 +720,29 @@ function renderDashboard(dataMap) {
   xlEl.innerHTML = XL_SPOOLS.map(s => renderCard(s, dataMap[s.id] || null)).join('');
 }
 
-// ─── FETCH FROM GOOGLE SHEETS ───────────────────────────────────────────────
+// ─── FETCH FROM GOOGLE APPS SCRIPT ─────────────────────────────────────────
 async function fetchSheetData() {
-  const { sheetId, apiKey, sheet } = CONFIG;
-  if (!sheetId || !apiKey) return null;
+  const { scriptUrl } = CONFIG;
+  if (!scriptUrl) return null;
 
-  const range = encodeURIComponent(`${sheet}!A2:I100`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const url = `${scriptUrl}?action=getData`;
 
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    const rows = json.values || [];
-
+    // Normalize: replace Slovak comma decimals to dots for parseFloat later
     const map = {};
-    for (const row of rows) {
-      const id = row[0];
-      if (!id) continue;
+    for (const [id, row] of Object.entries(json)) {
       map[id] = {
-        nfc: row[1] || '',
-        material: row[2] || '',
-        color: row[3] || 'FFFFFF',
-        weight: row[4] || null,
-        length: row[5] || null,
-        temp: row[6] || null,
-        hum: row[7] || null,
-        timestamp: row[8] || null,
+        nfc:       row.nfc || '',
+        material:  row.material || '',
+        color:     (row.color || 'FFFFFF').replace('#', ''),
+        weight:    row.weight !== null ? row.weight : null,
+        length:    row.length !== null ? row.length : null,
+        temp:      row.temp || null,
+        hum:       row.hum || null,
+        timestamp: row.timestamp || null,
       };
     }
     return map;
@@ -790,10 +773,7 @@ function getDemoData() {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
 
-  let dataMap;
-  if (CONFIG.sheetId && CONFIG.apiKey) {
-    dataMap = await fetchSheetData();
-  }
+  let dataMap = await fetchSheetData();
   if (!dataMap) {
     dataMap = getDemoData();
   }
@@ -811,9 +791,7 @@ function hideLoader() {
 
 // ─── CONFIG UI ──────────────────────────────────────────────────────────────
 function openConfig() {
-  document.getElementById('cfgSheetId').value = CONFIG.sheetId;
-  document.getElementById('cfgApiKey').value = CONFIG.apiKey;
-  document.getElementById('cfgSheet').value = CONFIG.sheet;
+  document.getElementById('cfgScriptUrl').value = CONFIG.scriptUrl;
   document.getElementById('cfgInterval').value = CONFIG.interval;
   document.getElementById('configPanel').classList.add('open');
   document.getElementById('overlay').classList.add('show');
@@ -825,14 +803,10 @@ function closeConfig() {
 }
 
 function saveAndLoad() {
-  CONFIG.sheetId = document.getElementById('cfgSheetId').value.trim();
-  CONFIG.apiKey = document.getElementById('cfgApiKey').value.trim();
-  CONFIG.sheet = document.getElementById('cfgSheet').value.trim() || 'PREHLAD';
+  CONFIG.scriptUrl = document.getElementById('cfgScriptUrl').value.trim();
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
 
-  localStorage.setItem('sheetId', CONFIG.sheetId);
-  localStorage.setItem('apiKey', CONFIG.apiKey);
-  localStorage.setItem('sheet', CONFIG.sheet);
+  localStorage.setItem('scriptUrl', CONFIG.scriptUrl);
   localStorage.setItem('interval', CONFIG.interval);
 
   closeConfig();
