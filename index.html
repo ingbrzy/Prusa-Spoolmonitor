@@ -476,16 +476,9 @@
   }
   .overlay.show { display: block; }
 
-  /* EMPTY STATE */
-  .no-data {
-    text-align: center;
-    padding: 16px 0;
-    color: #bbb;
-    font-size: 12px;
-  }
-
-  .card.no-tag {
-    opacity: 0.65;
+  /* CARD MODIFICATIONS FOR EMPTY SPOOL */
+  .card.empty-spool {
+    opacity: 0.75;
   }
 
   @media (max-width: 1100px) {
@@ -527,18 +520,6 @@
         <label class="config-label">Interval obnovy (minúty)</label>
         <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60" />
       </div>
-    </div>
-    <div class="config-section">
-      <div class="config-section-title">Ako získať URL</div>
-      <p style="font-size:11px;color:#999;line-height:1.8;">
-        1. Otvor <strong>script.google.com</strong><br>
-        2. Nahraj nový <strong>Google_sheet.gs</strong><br>
-        3. <strong>Deploy → New deployment</strong><br>
-        4. Type: <strong>Web app</strong><br>
-        5. Execute as: <strong>Me</strong><br>
-        6. Who has access: <strong>Anyone</strong><br>
-        7. Skopíruj <strong>Web app URL</strong>
-      </p>
     </div>
   </div>
 </div>
@@ -643,7 +624,9 @@ function renderCard(spool, data) {
   const staleMinutes = hasData ? data.staleMinutes : null;
 
   const maxWeight = 1000;
-  const gaugeVal = weight !== null ? weight : 0;
+  
+  // Ak je cievka označená ako prázdna, budík vizuálne spadne na 0 g
+  const gaugeVal = (weight !== null && !isSpoolEmpty) ? weight : 0;
 
   let statusBadge = '';
   if (!hasData || isSpoolEmpty) {
@@ -667,8 +650,17 @@ function renderCard(spool, data) {
 
   const bgStyle = `#${colorHex.replace('#','')}`;
 
+  // Formátovanie hodnôt: ak je prázdna, vynútime zobrazenie pomlčky "-"
+  const weightDisplay = (weight !== null && !isSpoolEmpty) 
+    ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
+    : '-';
+    
+  const lengthDisplay = (length !== null && !isSpoolEmpty) 
+    ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
+    : '-';
+
   return `
-    <div class="card${!hasData || isSpoolEmpty ? ' no-tag empty-spool' : ''}">
+    <div class="card${!hasData || isSpoolEmpty ? ' empty-spool' : ''}">
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
@@ -677,7 +669,7 @@ function renderCard(spool, data) {
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
         <div class="gauge-value" style="color:${gaugeVal < 50 && hasData && !isSpoolEmpty ? '#e65100' : '#1a1a1a'}">
-          ${weight !== null ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+          ${weightDisplay}
         </div>
         <div class="gauge-minmax">
           <span>0</span>
@@ -693,8 +685,8 @@ function renderCard(spool, data) {
 
       <div class="stat-row">
         <span class="stat-label">Dĺžka (m)</span>
-        <span class="stat-value${weight === null ? ' empty' : ''}">
-          ${length !== null ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) : '-'}
+        <span class="stat-value${weight === null || isSpoolEmpty ? ' empty' : ''}">
+          ${lengthDisplay}
         </span>
       </div>
 
@@ -798,6 +790,7 @@ function closeConfig() {
   document.getElementById('overlay').classList.remove('show');
 }
 
+// ─── INIT ───────────────────────────────────────────────────────────────────
 function saveAndLoad() {
   CONFIG.scriptUrl = document.getElementById('cfgScriptUrl').value.trim();
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
@@ -811,8 +804,6 @@ function saveAndLoad() {
 }
 
 function loadDemo() {
-  CONFIG.sheetId = '';
-  CONFIG.apiKey = '';
   closeConfig();
   renderDashboard(getDemoData());
   document.getElementById('lastUpdate').textContent =
@@ -825,7 +816,6 @@ function startAutoRefresh() {
   refreshTimer = setInterval(refreshData, CONFIG.interval * 60 * 1000);
 }
 
-// ─── INIT ───────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   renderDashboard({});
   startAutoRefresh();
