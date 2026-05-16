@@ -56,6 +56,11 @@
     transition: background-color 0.3s, border-color 0.3s;
   }
 
+  /* Specifická farba hlavičky pre Dark mode podľa požiadavky */
+  body.dark-theme .header {
+    background: #c0c0c0;
+  }
+
   .header-logo { display: flex; align-items: center; }
   .mas-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
   
@@ -65,14 +70,19 @@
     font-weight: 700;
     letter-spacing: 2px;
     color: var(--dark);
-    transition: font-size 0.3s;
+    transition: font-size 0.3s, color 0.3s;
     text-align: center;
+  }
+
+  /* Aby bol text čitateľný na #c0c0c0 v Dark mode */
+  body.dark-theme .header-title {
+    color: #1a1a1a;
   }
 
   .prusa-logo { display: flex; align-items: center; justify-content: flex-end; }
   .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
 
-  /* Mierne stmavenie lôg v dark mode */
+  /* Mierne stmavenie lôg v dark mode (aby neťahali oči, ak treba) */
   body.dark-theme .mas-img, body.dark-theme .prusa-img { filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.2)); }
 
   /* MAIN GRID */
@@ -237,6 +247,7 @@
     color: var(--text-light);
     font-weight: 400;
     margin-top: 2px;
+    text-align: center;
   }
 
   /* STATUS BADGE */
@@ -246,9 +257,10 @@
     gap: 4px;
     font-size: 10px;
     font-weight: 600;
-    padding: 2px 7px;
+    padding: 3px 9px;
     border-radius: 20px;
     letter-spacing: 0.3px;
+    align-self: center; /* Zabráni natiahnutiu na celú šírku a vycentruje prvok */
   }
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
@@ -299,8 +311,8 @@
   .config-panel {
     position: fixed;
     top: 0; right: 0;
-    width: 100%;          /* Vylepšené pre mobil */
-    max-width: 380px;     /* Na webe to ostane zúžené */
+    width: 100%;
+    max-width: 380px;
     height: 100vh;
     background: var(--card-bg);
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
@@ -466,36 +478,26 @@
   .card.empty-holder { opacity: 0.75; }
   body.dark-theme .card.empty-holder { opacity: 0.5; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* RESPONZÍVNY DIZAJN (MEDIA QUERIES) PRE MOBILY A TABLETY   */
-  /* ───────────────────────────────────────────────────────── */
-
-  /* Väčšie tablety / menšie monitory */
+  /* RESPONZÍVNY DIZAJN (MEDIA QUERIES) PRE MOBILY A TABLETY */
   @media (max-width: 1200px) {
     .section-row { grid-template-columns: repeat(4, 1fr); }
   }
-  
   @media (max-width: 992px) {
     .section-row { grid-template-columns: repeat(3, 1fr); }
   }
-
-  /* Menšie tablety / obrazovky na šírku */
   @media (max-width: 768px) {
     .section-row { grid-template-columns: repeat(2, 1fr); }
     .header-title { font-size: 20px; }
     .mas-img, .prusa-img { height: 36px; }
   }
-
-  /* Mobilné telefóny */
   @media (max-width: 480px) {
     .header { padding: 12px 16px; }
     .header-title { font-size: 15px; letter-spacing: 1px; }
     .mas-img, .prusa-img { height: 26px; }
     
     .dashboard { padding: 16px; }
-    .section-row { grid-template-columns: 1fr; gap: 12px; } /* 1 cievka na riadok */
+    .section-row { grid-template-columns: 1fr; gap: 12px; } 
     
-    /* Vylepšenie ovládacích prvkov na úzkych displejoch */
     .controls { 
       flex-direction: column; 
       align-items: flex-start; 
@@ -507,15 +509,13 @@
       display: flex; 
       gap: 10px; 
     }
-    .btn-icon { flex: 1; } /* Roztiahne tlačidlá na plnú šírku */
+    .btn-icon { flex: 1; }
     
-    /* Obmedzenie šírky grafu na mobile, aby nebol príliš veľký */
     .gauge-container { 
       max-width: 280px; 
       margin: 0 auto; 
     }
   }
-
 </style>
 </head>
 <body>
@@ -595,6 +595,7 @@ let refreshTimer = null;
 // ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
 if (CONFIG.darkMode) {
   document.body.classList.add('dark-theme');
+  document.getElementById('cfgDarkMode').checked = true;
 }
 
 // ─── SPOOL DEFINITIONS ─────────────────────────────────────────────────────
@@ -666,25 +667,24 @@ function renderCard(spool, data) {
   let isHolderEmpty = false;
   let statusBadge = '';
 
-  // 1. Podmienka pre prázdny držiak: viac ako 120 minút neaktivity, žiadne dáta, alebo jsonIsEmpty
+  // 1. Podmienka pre prázdny držiak
   if (!hasData || jsonIsEmpty || (staleMinutes !== null && staleMinutes > 120)) {
     isHolderEmpty = true;
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
   } 
-  // 2. Podmienka pre prázdnu cievku: presne 0 g
+  // 2. Podmienka pre prázdnu cievku
   else if (weight === 0) {
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } 
-  // 3. Podmienka pre málo filamentu: pod 50 g (ale viac ako 0 g)
+  // 3. Podmienka pre málo filamentu
   else if (weight !== null && weight < 50) {
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
   } 
-  // 4. Inak je všetko OK
+  // 4. OK
   else {
     statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
   }
 
-  // Ak je držiak prázdny, ručička padá na nulu, rovnako ako keď je cievka 0 g
   const gaugeVal = (weight !== null && !isHolderEmpty) ? weight : 0;
 
   let timeAgo = '';
@@ -700,7 +700,6 @@ function renderCard(spool, data) {
 
   const bgStyle = `#${colorHex.replace('#','')}`;
 
-  // Hodnoty nahradíme pomlčkou IBA ak ide o prázdny držiak
   const weightDisplay = (!isHolderEmpty && weight !== null) 
     ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
     : '-';
@@ -802,7 +801,7 @@ async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
 
   let dataMap = await fetchSheetData();
-  if (!dataMap) dataMap = {}; // Fallback na prázdne dáta pri chybe spojenia
+  if (!dataMap) dataMap = {}; 
 
   renderDashboard(dataMap);
   document.getElementById('lastUpdate').textContent =
