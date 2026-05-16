@@ -45,23 +45,12 @@
   .header-logo {
     display: flex;
     align-items: center;
-    gap: 10px;
   }
 
-  .mas-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--orange);
-    letter-spacing: -1px;
-  }
-
-  .mas-sub {
-    font-size: 10px;
-    color: #999;
-    font-weight: 400;
-    line-height: 1.2;
-    max-width: 120px;
+  .mas-img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
   }
 
   .header-title {
@@ -74,22 +63,14 @@
 
   .prusa-logo {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: flex-end;
   }
 
-  .prusa-brand {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--orange);
-    letter-spacing: 1px;
-  }
-
-  .prusa-sub {
-    font-size: 9px;
-    color: #aaa;
-    letter-spacing: 1px;
+  .prusa-img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
   }
 
   /* MAIN GRID */
@@ -567,15 +548,11 @@
 <!-- HEADER -->
 <div class="header">
   <div class="header-logo">
-    <div>
-      <div class="mas-logo">MAS</div>
-      <div class="mas-sub">Minebea AccessSolutions</div>
-    </div>
+    <img src="MAS.png" alt="MAS" class="mas-img" />
   </div>
   <div class="header-title">FILAMENT MONITOR</div>
   <div class="prusa-logo">
-    <div class="prusa-brand">PRUSA</div>
-    <div class="prusa-sub">RESEARCH · BY JOSEF PRUSA</div>
+    <img src="prusa.svg" alt="Prusa Research" class="prusa-img" />
   </div>
 </div>
 
