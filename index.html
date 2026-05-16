@@ -779,7 +779,10 @@ function renderCard(spool, data, index = 0) {
         <div class="gauge-value" style="color:${gaugeVal < 50 && !isHolderEmpty ? '#e65100' : 'var(--dark)'}">
           ${weightDisplay}
         </div>
-       </div>
+        <div class="gauge-minmax">
+          <span style="position:absolute;left:50%;transform:translateX(-50%);color:var(--text-light);font-size:9px;">Váha (g)</span>
+        </div>
+      </div>
 
       <div class="material-row">
         ${materialDisplay}
