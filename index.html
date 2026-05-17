@@ -539,6 +539,13 @@
     .gauge-container { max-width: 280px; margin: 0 auto; }
   }
 </style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#E8500A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 </head>
 <body>
 
@@ -928,6 +935,20 @@ window.addEventListener('DOMContentLoaded', () => {
   startAutoRefresh();
   refreshData();
 });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then((registration) => {
+          console.log('PWA Service Worker beží.', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Chyba pri registrácii Service Workera:', error);
+        });
+    });
+  }
 </script>
 </body>
 </html>
