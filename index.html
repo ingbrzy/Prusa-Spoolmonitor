@@ -10,6 +10,7 @@
   :root {
     --orange: #E8500A;
     --orange-light: #F4651F;
+    --red: #d32f2f; /* Červená pre svetlý režim */
     --dark: #1a1a1a;
     --text: #333;
     --text-light: #666;
@@ -28,6 +29,7 @@
     --text-light: #999;
     --border: #333;
     --dark: #ffffff;
+    --red: #ff5252; /* Jasnejšia červená pre tmavý režim */
     --gauge-bg: #2a2a2a;
     --gauge-track: #3a3a3a;
   }
@@ -654,7 +656,8 @@ function createGaugeSVG(value, max) {
   const [ex, ey] = polar(0);
   const pathDef = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
 
-  const color = pct <= 0 ? 'var(--gauge-track)' : pct < 0.15 ? '#e65100' : '#E8500A';
+  // Ak je hodnota > 0 a menšia ako 100g, použijeme CSS premennú pre červenú
+  const color = value <= 0 ? 'var(--gauge-track)' : value < 100 ? 'var(--red)' : '#E8500A';
 
   const pathLength = 232.48;
   const targetOffset = pathLength * (1 - pct);
@@ -764,6 +767,9 @@ function renderCard(spool, data, index = 0) {
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
 
+  // Farba textu podla váhy - ak < 100g = červená
+  const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
+
   return `
     <div class="card${isHolderEmpty ? ' empty-holder' : ''}${animClass}" ${animStyle}>
       <div class="card-header">
@@ -773,7 +779,7 @@ function renderCard(spool, data, index = 0) {
 
       <div class="gauge-container">
         ${createGaugeSVG(gaugeVal, maxWeight)}
-        <div class="gauge-value" style="color:${gaugeVal < 50 && !isHolderEmpty ? '#e65100' : 'var(--dark)'}">
+        <div class="gauge-value" style="color:${textValueColor}">
           <span class="val-text">${weightDisplay}</span>
           <span class="val-label">Váha (g)</span>
         </div>
