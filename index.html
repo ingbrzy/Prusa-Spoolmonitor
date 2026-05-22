@@ -4,13 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Filament Monitor</title>
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#E8500A">
+<link rel="manifest" href="./manifest.json">
+
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22%23222%22 stroke=%22%23444%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2250%22 r=%2238%22 fill=%22%23E8500A%22/><circle cx=%2250%22 cy=%2250%22 r=%2218%22 fill=%22%23222%22 stroke=%22%23444%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2250%22 r=%2210%22 fill=%22black%22/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --orange: #E8500A;
     --orange-light: #F4651F;
-    --red: #d32f2f; /* Červená pre svetlý režim */
+    --red: #d32f2f;
     --dark: #1a1a1a;
     --text: #333;
     --text-light: #666;
@@ -29,7 +36,7 @@
     --text-light: #999;
     --border: #333;
     --dark: #ffffff;
-    --red: #ff5252; /* Jasnejšia červená pre tmavý režim */
+    --red: #ff5252;
     --gauge-bg: #2a2a2a;
     --gauge-track: #3a3a3a;
   }
@@ -539,13 +546,6 @@
     .gauge-container { max-width: 280px; margin: 0 auto; }
   }
 </style>
-
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#E8500A">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
-
 </head>
 <body>
 
@@ -607,9 +607,23 @@
 <div class="dashboard">
   <div class="section-row" id="row-mk3s"></div>
   <div class="section-row" id="row-xl"></div>
+  <div class="section-row" id="row-xl2"></div>
 </div>
 
 <script>
+// ─── PWA SERVICE WORKER REGISTRATION ───────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((registration) => {
+        console.log('PWA Service Worker beží.', registration.scope);
+      })
+      .catch((error) => {
+        console.error('Chyba pri registrácii Service Workera:', error);
+      });
+  });
+}
+
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbx9s_1ZtZWvnLcaMMHCKziu2fZdqXWcaiJ47197buBIW533-KCTv1td0vsD_voGS_-M/exec';
 
@@ -619,8 +633,6 @@ let CONFIG = {
 };
 
 let refreshTimer = null;
-
-// Sleduje, či ide o úplne prvé načítanie stránky v prehliadači
 let isInitialLoad = true;
 
 // ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
@@ -646,6 +658,12 @@ const XL_SPOOLS = [
   { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
 ];
 
+// Nová definícia pre druhú XL tlačiareň
+const XL2_SPOOLS = [
+  { id: 'spool-XL2-01', label: 'TOOL 01', type: 'XL2' },
+  { id: 'spool-XL2-02', label: 'TOOL 02', type: 'XL2' }
+];
+
 // ─── GAUGE SVG S PODMIENENOU ANIMÁCIOU ─────────────────────────────────────
 function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
@@ -669,7 +687,6 @@ function createGaugeSVG(value, max) {
   const pathLength = 232.48;
   const targetOffset = pathLength * (1 - pct);
 
-  // Aplikuje animáciu výplne grafu len pri úvodnom načítaní
   const animStyle = isInitialLoad 
     ? `style="--target-offset: ${targetOffset}; animation: gaugeFill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;"`
     : `style="stroke-dashoffset: ${targetOffset};"`;
@@ -686,7 +703,7 @@ function createGaugeSVG(value, max) {
   `;
 }
 
-// ─── RENDER CARD S PODMIENENOU ANIMÁCIOU ───────────────────────────────────
+// ─── RENDER CARD ───────────────────────────────────────────────────────────
 function renderCard(spool, data, index = 0) {
   const hasData = !!data;
   const jsonIsEmpty = hasData ? data.isEmpty : true;
@@ -746,7 +763,6 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
-  // Príprava teploty
   let tempHtml = '';
   if (hasData && data.temp !== null && data.temp !== undefined && data.temp !== '') {
     const tempDisplay = isHolderEmpty ? '-' : `${Number(data.temp).toLocaleString('sk', {maximumFractionDigits:1})} °C`;
@@ -758,7 +774,6 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
-  // Príprava vlhkosti
   let humHtml = '';
   if (hasData && data.hum !== null && data.hum !== undefined && data.hum !== '') {
     const humDisplay = isHolderEmpty ? '-' : `${Number(data.hum).toLocaleString('sk', {maximumFractionDigits:0})} %`;
@@ -770,11 +785,8 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
-  // Pre úvodné načítanie priradíme animáciu, inak ostane bežná karta
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
-
-  // Farba textu podla váhy - ak < 100g = červená
   const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
 
   return `
@@ -817,9 +829,11 @@ function renderCard(spool, data, index = 0) {
 function renderDashboard(dataMap) {
   const mk3sEl = document.getElementById('row-mk3s');
   const xlEl = document.getElementById('row-xl');
+  const xl2El = document.getElementById('row-xl2'); // Nový element
 
   mk3sEl.innerHTML = MK3S_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i)).join('');
   xlEl.innerHTML = XL_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length)).join('');
+  xl2El.innerHTML = XL2_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length + XL_SPOOLS.length)).join('');
 }
 
 // ─── FETCH FROM GOOGLE APPS SCRIPT ─────────────────────────────────────────
@@ -858,6 +872,17 @@ async function fetchSheetData() {
           }
         });
       }
+
+      // Zdieľanie teploty a vlhkosti z XL2-01 pre ostatné nástroje XL2 (napr. XL2-02)
+      const xl2_01 = map['spool-XL2-01'];
+      if (xl2_01) {
+        ['spool-XL2-02', 'spool-XL2-03', 'spool-XL2-04', 'spool-XL2-05'].forEach(id => {
+          if (map[id]) {
+            if (xl2_01.temp !== null) map[id].temp = xl2_01.temp;
+            if (xl2_01.hum !== null) map[id].hum = xl2_01.hum;
+          }
+        });
+      }
     }
     return map;
   } catch (e) {
@@ -875,7 +900,6 @@ async function refreshData() {
 
   renderDashboard(dataMap);
   
-  // Po úplne prvom reálnom načítaní dát vypneme efekt skákania (pre ďalšie refreshe)
   isInitialLoad = false;
   
   document.getElementById('lastUpdate').textContent =
@@ -930,25 +954,10 @@ function startAutoRefresh() {
   refreshTimer = setInterval(refreshData, CONFIG.interval * 60 * 1000);
 }
 
-// Odstránené zbytočné vykresľovanie prázdnych elementov pred zistením skutočných dát
 window.addEventListener('DOMContentLoaded', () => {
   startAutoRefresh();
   refreshData();
 });
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then((registration) => {
-          console.log('PWA Service Worker beží.', registration.scope);
-        })
-        .catch((error) => {
-          console.error('Chyba pri registrácii Service Workera:', error);
-        });
-    });
-  }
 </script>
 </body>
 </html>
