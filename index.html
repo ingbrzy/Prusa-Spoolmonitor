@@ -18,6 +18,7 @@
     --orange: #E8500A;
     --orange-light: #F4651F;
     --red: #d32f2f;
+    --pulse-shadow: rgba(211, 47, 47, 0.25);
     --dark: #1a1a1a;
     --text: #333;
     --text-light: #666;
@@ -37,6 +38,7 @@
     --border: #333;
     --dark: #ffffff;
     --red: #ff5252;
+    --pulse-shadow: rgba(255, 82, 82, 0.25);
     --gauge-bg: #2a2a2a;
     --gauge-track: #3a3a3a;
   }
@@ -120,6 +122,11 @@
     50% { opacity: 0.2; }
   }
 
+  @keyframes cardPulseAlert {
+    0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); }
+  }
+
   /* KARTA BEZ ANIMÁCIE (ŠTANDARDNÝ STAV) */
   .card {
     background: var(--card-bg);
@@ -166,10 +173,19 @@
   body.dark-theme .card.type-xl2 .printer-type { color: #ba68c8; }
 
   /* ───────────────────────────────────────────────────────── */
-
-  .animate-pop {
+  /* APLIKÁCIA ANIMÁCIÍ                                        */
+  /* ───────────────────────────────────────────────────────── */
+  .card.animate-pop {
     opacity: 0;
     animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  .card.alert-pulse:not(.animate-pop) {
+    animation: cardPulseAlert 2.5s infinite ease-in-out;
+  }
+
+  .card.animate-pop.alert-pulse {
+    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2.5s infinite ease-in-out 0.6s;
   }
 
   .card-header {
@@ -185,7 +201,6 @@
     font-family: 'Montserrat', sans-serif;
     font-size: 18px;
     font-weight: 700;
-    color: var(--orange); /* Pôvodný fallback, prebitý novými farbami */
     flex-shrink: 0;
     letter-spacing: 0.5px;
   }
@@ -212,7 +227,6 @@
     height: 100%;
   }
 
-  /* Zlúčená hodnota a label vnútri grafu */
   .gauge-value {
     position: absolute;
     bottom: 12px;
@@ -743,14 +757,19 @@ function renderCard(spool, data, index = 0) {
   const maxWeight = 1000;
   
   let isHolderEmpty = false;
+  let isAlert = false;
   let statusBadge = '';
 
+  // Logika pre určenie chybového/varovného stavu
   if (!hasData || jsonIsEmpty || (staleMinutes !== null && staleMinutes > 120)) {
     isHolderEmpty = true;
+    isAlert = true;
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
   } else if (weight === 0) {
+    isAlert = true;
     statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
   } else if (weight !== null && weight < 50) {
+    isAlert = true;
     statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
   } else {
     statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
@@ -811,15 +830,14 @@ function renderCard(spool, data, index = 0) {
     `;
   }
 
-  // Identifikátor farby pozadia na základe typu tlačiarne
   const typeClass = 'type-' + spool.type.toLowerCase();
-
   const animClass = isInitialLoad ? ' animate-pop' : '';
+  const alertClass = isAlert ? ' alert-pulse' : '';
   const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
   const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
 
   return `
-    <div class="card ${typeClass}${isHolderEmpty ? ' empty-holder' : ''}${animClass}" ${animStyle}>
+    <div class="card ${typeClass}${isHolderEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
       <div class="card-header">
         <span class="printer-type">${spool.type}</span>
         <span class="printer-name">${spool.label}</span>
