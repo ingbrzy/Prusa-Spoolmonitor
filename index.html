@@ -105,7 +105,7 @@
   }
 
   /* ───────────────────────────────────────────────────────── */
-  /* ANIMÁCIE                                                  */
+  /* ANIMÁCIE A ICH SYNCHRONIZÁCIA                             */
   /* ───────────────────────────────────────────────────────── */
   @keyframes cardPop {
     0% { opacity: 0; transform: translateY(20px); }
@@ -117,11 +117,13 @@
     100% { stroke-dashoffset: var(--target-offset); }
   }
 
+  /* Upravený textový badge - na 50% je plne jasný, inak stlmený */
   @keyframes alertBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
   }
 
+  /* Karta svieti presne vtedy (na 50%), kedy je text plne jasný */
   @keyframes cardPulseAlert {
     0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); }
@@ -145,47 +147,50 @@
   }
 
   /* ───────────────────────────────────────────────────────── */
-  /* SKUPINY TLAČIARNÍ - FARBY POZADIA A TEXTU                 */
+  /* SKUPINY TLAČIARNÍ - FARBY POZADIA A LOKÁLNEHO OKRAJA      */
   /* ───────────────────────────────────────────────────────── */
-  .card.type-mk3s { --card-bg: #f0f7ff; border-color: #cce4ff; }
+  .card.type-mk3s { --card-bg: #f0f7ff; --border: #cce4ff; }
   .card.type-mk3s .printer-type { color: #1976d2; }
 
-  .card.type-mk4s { --card-bg: #f2fcf5; border-color: #c8e6c9; }
+  .card.type-mk4s { --card-bg: #f2fcf5; --border: #c8e6c9; }
   .card.type-mk4s .printer-type { color: #388e3c; }
 
-  .card.type-xl { --card-bg: #fff8f0; border-color: #ffe0b2; }
+  .card.type-xl { --card-bg: #fff8f0; --border: #ffe0b2; }
   .card.type-xl .printer-type { color: #f57c00; }
 
-  .card.type-xl2 { --card-bg: #fdf4ff; border-color: #e1bee7; }
+  .card.type-xl2 { --card-bg: #fdf4ff; --border: #e1bee7; }
   .card.type-xl2 .printer-type { color: #8e24aa; }
 
   /* DARK MODE FARBY PRE SKUPINY */
-  body.dark-theme .card.type-mk3s { --card-bg: #151e29; border-color: #20354b; }
+  body.dark-theme .card.type-mk3s { --card-bg: #151e29; --border: #20354b; }
   body.dark-theme .card.type-mk3s .printer-type { color: #64b5f6; }
 
-  body.dark-theme .card.type-mk4s { --card-bg: #152219; border-color: #24422c; }
+  body.dark-theme .card.type-mk4s { --card-bg: #152219; --border: #24422c; }
   body.dark-theme .card.type-mk4s .printer-type { color: #81c784; }
 
-  body.dark-theme .card.type-xl { --card-bg: #291e14; border-color: #4a3018; }
+  body.dark-theme .card.type-xl { --card-bg: #291e14; --border: #4a3018; }
   body.dark-theme .card.type-xl .printer-type { color: #ffb74d; }
 
-  body.dark-theme .card.type-xl2 { --card-bg: #26162b; border-color: #42214d; }
+  body.dark-theme .card.type-xl2 { --card-bg: #26162b; --border: #42214d; }
   body.dark-theme .card.type-xl2 .printer-type { color: #ba68c8; }
 
   /* ───────────────────────────────────────────────────────── */
-  /* APLIKÁCIA ANIMÁCIÍ                                        */
+  /* APLIKÁCIA ANIMÁCIÍ ZÁVISLÁ NA --delay PRE SYNCHRONIZÁCIU  */
   /* ───────────────────────────────────────────────────────── */
   .card.animate-pop {
     opacity: 0;
     animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: var(--delay, 0s);
   }
 
   .card.alert-pulse:not(.animate-pop) {
-    animation: cardPulseAlert 2.5s infinite ease-in-out;
+    animation: cardPulseAlert 2s infinite ease-in-out;
+    animation-delay: var(--delay, 0s);
   }
 
   .card.animate-pop.alert-pulse {
-    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2.5s infinite ease-in-out 0.6s;
+    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out;
+    animation-delay: var(--delay, 0s);
   }
 
   .card-header {
@@ -340,16 +345,19 @@
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
   
+  /* Napojenie na premennú --delay zabezpečí rovnaký štart s materskou kartou */
   .status-low { 
     background: #fff3e0; 
     color: #e65100; 
-    animation: alertBlink 1.5s infinite ease-in-out; 
+    animation: alertBlink 2s infinite ease-in-out; 
+    animation-delay: var(--delay, 0s);
   }
   .status-empty { 
     background: #fce4e4; 
     color: #c62828; 
     border: 1px solid #ef9a9a; 
-    animation: alertBlink 1.5s infinite ease-in-out; 
+    animation: alertBlink 2s infinite ease-in-out;
+    animation-delay: var(--delay, 0s);
   }
   
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -760,7 +768,6 @@ function renderCard(spool, data, index = 0) {
   let isAlert = false;
   let statusBadge = '';
 
-  // Logika pre určenie chybového/varovného stavu
   if (!hasData || jsonIsEmpty || (staleMinutes !== null && staleMinutes > 120)) {
     isHolderEmpty = true;
     isAlert = true;
@@ -833,7 +840,10 @@ function renderCard(spool, data, index = 0) {
   const typeClass = 'type-' + spool.type.toLowerCase();
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const alertClass = isAlert ? ' alert-pulse' : '';
-  const animStyle = isInitialLoad ? `style="animation-delay: ${index * 0.05}s;"` : '';
+  
+  // Vloženie zdediteľnej CSS premennej pre dokonalú synchronizáciu štartu
+  const animStyle = isInitialLoad ? `style="--delay: ${index * 0.05}s;"` : '';
+  
   const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
 
   return `
