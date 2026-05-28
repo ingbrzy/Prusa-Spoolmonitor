@@ -117,13 +117,11 @@
     100% { stroke-dashoffset: var(--target-offset); }
   }
 
-  /* Upravený textový badge - na 50% je plne jasný, inak stlmený */
   @keyframes alertBlink {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
   }
 
-  /* Karta svieti presne vtedy (na 50%), kedy je text plne jasný */
   @keyframes cardPulseAlert {
     0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); }
@@ -287,7 +285,7 @@
     color: var(--text-light);
   }
 
-  /* ŠTATISTIKY (Teplota, Dĺžka, Vlhkosť) */
+  /* ŠTATISTIKY */
   .stats-container {
     display: flex;
     justify-content: space-evenly;
@@ -345,7 +343,6 @@
 
   .status-ok { background: #e8f5e9; color: #2e7d32; }
   
-  /* Napojenie na premennú --delay zabezpečí rovnaký štart s materskou kartou */
   .status-low { 
     background: #fff3e0; 
     color: #e65100; 
@@ -366,7 +363,9 @@
   body.dark-theme .status-low { background: rgba(230, 81, 0, 0.2); color: #ffb74d; }
   body.dark-theme .status-empty { background: rgba(198, 40, 40, 0.2); color: #e57373; border-color: rgba(229, 115, 115, 0.3); }
 
-  /* LOADER */
+  /* ───────────────────────────────────────────────────────── */
+  /* PRUSA LOADER ANIMATION                                    */
+  /* ───────────────────────────────────────────────────────── */
   .loading-overlay {
     position: fixed;
     inset: 0;
@@ -382,16 +381,17 @@
 
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
 
-  .loader-ring {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--border);
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+  .prusa-loader {
+    width: 64px;
+    height: 64px;
+    /* Názov tvojho súboru naznačuje 4-sekundovú rotáciu */
+    animation: prusaSpin 4s linear infinite;
   }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes prusaSpin { 
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); } 
+  }
 
   .loading-text {
     font-family: 'Montserrat', sans-serif;
@@ -601,7 +601,7 @@
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="loader-ring"></div>
+  <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
   <div class="loading-text">NAČÍTAVAM DÁTA...</div>
 </div>
 
@@ -841,7 +841,6 @@ function renderCard(spool, data, index = 0) {
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const alertClass = isAlert ? ' alert-pulse' : '';
   
-  // Vloženie zdediteľnej CSS premennej pre dokonalú synchronizáciu štartu
   const animStyle = isInitialLoad ? `style="--delay: ${index * 0.05}s;"` : '';
   
   const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
@@ -930,7 +929,7 @@ async function fetchSheetData() {
         });
       }
 
-      // Zdieľanie teploty a vlhkosti z XL2-01 pre ostatné nástroje XL2 (napr. XL2-02)
+      // Zdieľanie teploty a vlhkosti z XL2-01 pre ostatné nástroje XL2
       const xl2_01 = map['spool-XL2-01'];
       if (xl2_01) {
         ['spool-XL2-02', 'spool-XL2-03', 'spool-XL2-04', 'spool-XL2-05'].forEach(id => {
