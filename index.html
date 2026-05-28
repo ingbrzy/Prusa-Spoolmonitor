@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Filament Monitor</title>
+<title>SPOOL MONITOR</title>
 
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -70,18 +70,25 @@
   }
 
   body.dark-theme .header { background: #c0c0c0; }
-  .header-logo { display: flex; align-items: center; }
-  .mas-img { height: 44px; width: auto; object-fit: contain; }
+  .header-logo { display: flex; align-items: center; flex: 1; }
+  .mas-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
   
-  .header-title {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--dark);
-    text-align: center;
+  .header-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 2;
   }
-  body.dark-theme .header-title { color: #1a1a1a; }
-  .prusa-img { height: 44px; width: auto; object-fit: contain; }
+
+  .header-title-svg {
+    height: 28px; /* Prispôsobené pre hlavičku */
+    width: auto;
+    fill: var(--dark); /* Automaticky reaguje na tmavý/svetlý režim */
+    transition: fill 0.3s, height 0.3s;
+  }
+
+  .prusa-logo { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
+  .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
 
   /* DASHBOARD GRID */
   .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
@@ -179,11 +186,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px; /* Medzera medzi logom a cievkou */
+    gap: 30px; 
   }
 
-  /* LOGO SPOOL MONITOR */
-  .spool-monitor-logo {
+  .spool-monitor-logo-loader {
     height: 32px;
     width: auto;
     fill: var(--loader-logo);
@@ -196,7 +202,6 @@
     transition: filter 0.3s;
   }
 
-  /* Trik pre Dark mode cievku ak nemáš -inverse súbor */
   body.dark-theme .prusa-loader {
     filter: invert(1) hue-rotate(180deg) brightness(1.2);
   }
@@ -241,15 +246,24 @@
 
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 768px) { .section-row { grid-template-columns: repeat(2, 1fr); } .header-title { font-size: 20px; } }
-  @media (max-width: 480px) { .section-row { grid-template-columns: 1fr; } .header { padding: 10px 15px; } .header-title { font-size: 16px; } }
+  @media (max-width: 768px) { 
+    .section-row { grid-template-columns: repeat(2, 1fr); } 
+    .mas-img, .prusa-img { height: 36px; }
+    .header-title-svg { height: 22px; }
+  }
+  @media (max-width: 480px) { 
+    .section-row { grid-template-columns: 1fr; } 
+    .header { padding: 12px 16px; } 
+    .mas-img, .prusa-img { height: 26px; }
+    .header-title-svg { height: 16px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loader-container">
-    <svg class="spool-monitor-logo" viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
+    <svg class="spool-monitor-logo-loader" viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
       <text x="185" y="30" font-family="Montserrat" font-size="32" font-weight="800" letter-spacing="-1" text-anchor="end">SPOOL</text>
       <circle cx="200" cy="20" r="5" fill="#E8500A" />
       <text x="215" y="30" font-family="Montserrat" font-size="28" font-weight="300" letter-spacing="4" text-anchor="start">MONITOR</text>
@@ -257,7 +271,6 @@
 
     <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
     
-
   </div>
 </div>
 
@@ -286,7 +299,13 @@
 
 <div class="header">
   <div class="header-logo"><img src="MAS.png" alt="MAS" class="mas-img"></div>
-  <div class="header-title">FILAMENT MONITOR</div>
+  <div class="header-title-container">
+    <svg class="header-title-svg" viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="185" y="30" font-family="Montserrat" font-size="32" font-weight="800" letter-spacing="-1" text-anchor="end">SPOOL</text>
+      <circle cx="200" cy="20" r="5" fill="#E8500A" />
+      <text x="215" y="30" font-family="Montserrat" font-size="28" font-weight="300" letter-spacing="4" text-anchor="start">MONITOR</text>
+    </svg>
+  </div>
   <div class="prusa-logo"><img src="prusa.svg" alt="Prusa" class="prusa-img"></div>
 </div>
 
@@ -381,7 +400,7 @@ function renderCard(spool, data, index) {
 
   if (isEmpty) { statusClass = "status-empty"; statusText = "Prázdny držiak"; isAlert = true; }
   else if (weight === 0) { statusClass = "status-empty"; statusText = "Prázdna cievka"; isAlert = true; }
-  else if (weight < 100) { statusClass = "status-low"; statusText = "Málo filamentu"; isAlert = true; }
+  else if (weight < 50) { statusClass = "status-low"; statusText = "Málo filamentu"; isAlert = true; }
 
   const weightDisp = isEmpty ? "-" : weight.toLocaleString('sk', {minimumFractionDigits:1});
   const lengthDisp = isEmpty ? "-" : (data.length || 0).toLocaleString('sk', {minimumFractionDigits:1});
