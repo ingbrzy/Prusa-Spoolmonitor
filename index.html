@@ -256,9 +256,23 @@
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; display: none; }
   .overlay.show { display: block; }
 
-  /* CARD MODIFICATIONS FOR EMPTY HOLDER */
-  .card.empty-holder { opacity: 0.75; filter: grayscale(100%); }
-  body.dark-theme .card.empty-holder { opacity: 0.5; filter: grayscale(100%); }
+  /* ───────────────────────────────────────────────────────── */
+  /* MODIFIKÁCIA PRE PRÁZDNY DRŽIAK (BEZ ZRUŠENIA ČERVENEJ)    */
+  /* ───────────────────────────────────────────────────────── */
+  .card.empty-holder { 
+    opacity: 0.75; 
+    --card-bg: #f9f9f9;  /* Neutrálna šedá namiesto farebnej */
+    --border: #e0e0e0;
+  }
+  .card.empty-holder .printer-type { 
+    color: var(--text-light) !important; /* Šedý text namiesto farebného */
+  }
+
+  body.dark-theme .card.empty-holder { 
+    opacity: 0.6; 
+    --card-bg: #181818; 
+    --border: #333333;
+  }
 
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
