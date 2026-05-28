@@ -80,15 +80,42 @@
     flex: 2;
   }
 
-  .header-title-svg {
-    height: 28px; 
-    width: auto;
-    fill: var(--dark); 
-    transition: fill 0.3s, height 0.3s;
-  }
-
   .prusa-logo { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
   .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
+
+  /* TEXT LOGO STYLES (Nahradilo SVG) */
+  .logo-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    white-space: nowrap;
+  }
+  .logo-bold {
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .logo-dot {
+    background-color: var(--orange);
+    border-radius: 50%;
+  }
+  .logo-light {
+    font-weight: 300;
+    letter-spacing: 4px;
+  }
+
+  /* Veľkosť loga v hlavičke */
+  .header-logo-text { color: var(--dark); transition: color 0.3s; }
+  .header-logo-text .logo-bold { font-size: 24px; }
+  .header-logo-text .logo-light { font-size: 21px; }
+  .header-logo-text .logo-dot { width: 8px; height: 8px; }
+
+  /* Veľkosť loga v loadri */
+  .loader-logo-text { color: var(--loader-logo); transition: color 0.3s; }
+  .loader-logo-text .logo-bold { font-size: 32px; }
+  .loader-logo-text .logo-light { font-size: 28px; }
+  .loader-logo-text .logo-dot { width: 10px; height: 10px; }
+
 
   /* DASHBOARD GRID */
   .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
@@ -138,15 +165,7 @@
   .card.alert-pulse:not(.animate-pop) { animation: cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .card.animate-pop.alert-pulse { animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
 
-  .card-header {
-    white-space: nowrap;
-    overflow: hidden;
-    min-height: 24px;
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-
+  .card-header { white-space: nowrap; overflow: hidden; min-height: 24px; display: flex; align-items: baseline; gap: 10px; }
   .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; }
   .printer-name { font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -177,55 +196,13 @@
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* PRUSA CONNECT STYLE LOADING SCREEN                        */
-  /* ───────────────────────────────────────────────────────── */
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.5s ease-out, visibility 0.5s;
-  }
-
+  /* LOADING SCREEN */
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out, visibility 0.5s; }
   .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-  .loader-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px; 
-  }
-
-  .spool-monitor-logo-loader {
-    height: 32px;
-    width: auto;
-    fill: var(--loader-logo);
-    transition: fill 0.3s;
-  }
-
-  .prusa-loader {
-    width: 64px;
-    height: 64px;
-    transition: filter 0.3s;
-  }
-
-  body.dark-theme .prusa-loader {
-    filter: invert(1) hue-rotate(180deg) brightness(1.2);
-  }
-
-  .loading-text {
-    margin-top: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: var(--text-light);
-    text-transform: uppercase;
-  }
+  .loader-container { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .prusa-loader { width: 64px; height: 64px; transition: filter 0.3s; }
+  body.dark-theme .prusa-loader { filter: invert(1) hue-rotate(180deg) brightness(1.2); }
+  .loading-text { margin-top: 15px; font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--text-light); text-transform: uppercase; }
 
   /* CONTROLS */
   .controls { padding: 12px 24px 0; display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; }
@@ -256,17 +233,13 @@
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; display: none; }
   .overlay.show { display: block; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* MODIFIKÁCIA PRE PRÁZDNY DRŽIAK (BEZ ZRUŠENIA ČERVENEJ)    */
-  /* ───────────────────────────────────────────────────────── */
+  /* PRÁZDNY DRŽIAK */
   .card.empty-holder { 
     opacity: 0.75; 
-    --card-bg: #f9f9f9;  /* Neutrálna šedá namiesto farebnej */
+    --card-bg: #f9f9f9;  
     --border: #e0e0e0;
   }
-  .card.empty-holder .printer-type { 
-    color: var(--text-light) !important; /* Šedý text namiesto farebného */
-  }
+  .card.empty-holder .printer-type { color: var(--text-light) !important; }
 
   body.dark-theme .card.empty-holder { 
     opacity: 0.6; 
@@ -274,18 +247,23 @@
     --border: #333333;
   }
 
+  /* RESPOSIVE */
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 768px) { 
     .section-row { grid-template-columns: repeat(2, 1fr); } 
     .mas-img, .prusa-img { height: 36px; }
-    .header-title-svg { height: 22px; }
+    .header-logo-text .logo-bold { font-size: 18px; }
+    .header-logo-text .logo-light { font-size: 16px; }
+    .header-logo-text .logo-dot { width: 6px; height: 6px; }
+    .logo-text { gap: 8px; }
   }
   @media (max-width: 480px) { 
     .section-row { grid-template-columns: 1fr; } 
     .header { padding: 12px 16px; } 
     .mas-img, .prusa-img { height: 26px; }
-    .header-title-svg { height: 16px; }
+    .header-logo-text .logo-bold { font-size: 15px; }
+    .header-logo-text .logo-light { font-size: 13px; }
   }
 </style>
 </head>
@@ -293,14 +271,16 @@
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loader-container">
-    <svg class="spool-monitor-logo-loader" viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
-      <text x="185" y="30" font-family="Montserrat" font-size="32" font-weight="800" letter-spacing="-1" text-anchor="end">SPOOL</text>
-      <circle cx="200" cy="20" r="5" fill="#E8500A" />
-      <text x="215" y="30" font-family="Montserrat" font-size="28" font-weight="300" letter-spacing="4" text-anchor="start">MONITOR</text>
-    </svg>
+    
+    <div class="logo-text loader-logo-text">
+      <span class="logo-bold">SPOOL</span>
+      <span class="logo-dot"></span>
+      <span class="logo-light">MONITOR</span>
+    </div>
 
     <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
     
+    <div class="loading-text">Načítavam systém...</div>
   </div>
 </div>
 
@@ -330,11 +310,13 @@
 <div class="header">
   <div class="header-logo"><img src="MAS.png" alt="MAS" class="mas-img"></div>
   <div class="header-title-container">
-    <svg class="header-title-svg" viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
-      <text x="185" y="30" font-family="Montserrat" font-size="32" font-weight="800" letter-spacing="-1" text-anchor="end">SPOOL</text>
-      <circle cx="200" cy="20" r="5" fill="#E8500A" />
-      <text x="215" y="30" font-family="Montserrat" font-size="28" font-weight="300" letter-spacing="4" text-anchor="start">MONITOR</text>
-    </svg>
+    
+    <div class="logo-text header-logo-text">
+      <span class="logo-bold">SPOOL</span>
+      <span class="logo-dot"></span>
+      <span class="logo-light">MONITOR</span>
+    </div>
+
   </div>
   <div class="prusa-logo"><img src="prusa.svg" alt="Prusa" class="prusa-img"></div>
 </div>
@@ -446,7 +428,6 @@ function renderCard(spool, data, index) {
                    <div class="stat-col"><span class="stat-label">Dĺžka (m)</span><span class="stat-value${isEmpty ? ' empty' : ''}">${lengthDisp}</span></div>
                    <div class="stat-col"><span class="stat-label">Vlhkosť</span><span class="stat-value${isEmpty ? ' empty' : ''}">${!isEmpty && data.hum ? data.hum+'%' : '-'}</span></div>`;
 
-  // Explicitne povieme grafu, že hodnota je 0, ak je držiak prázdny (aby nevykresľoval červenú čiaru)
   const gaugeVal = isEmpty ? 0 : weight;
 
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
@@ -475,13 +456,11 @@ async function refreshData() {
     const map = {};
     json.spools.forEach(s => map[s.id] = s);
 
-    // Zdieľanie senzorov XL
     if (map['spool-XL05']) {
       ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
         if (map[id]) { map[id].temp = map['spool-XL05'].temp; map[id].hum = map['spool-XL05'].hum; }
       });
     }
-    // Zdieľanie senzorov XL2
     if (map['spool-XL2-01']) {
       if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
     }
