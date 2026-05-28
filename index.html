@@ -73,53 +73,27 @@
   .header-logo { display: flex; align-items: center; flex: 1; }
   .mas-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
   
-  .header-title-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 2;
-  }
-
+  .header-title-container { display: flex; align-items: center; justify-content: center; flex: 2; }
   .prusa-logo { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
   .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
 
-  /* TEXT LOGO STYLES (Nahradilo SVG) */
-  .logo-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    white-space: nowrap;
-  }
-  .logo-bold {
-    font-weight: 800;
-    letter-spacing: -1px;
-  }
-  .logo-dot {
-    background-color: var(--orange);
-    border-radius: 50%;
-  }
-  .logo-light {
-    font-weight: 300;
-    letter-spacing: 4px;
-  }
-
-  /* Veľkosť loga v hlavičke */
+  /* TEXT LOGO STYLES */
+  .logo-text { display: flex; align-items: center; justify-content: center; gap: 12px; white-space: nowrap; }
+  .logo-bold { font-weight: 800; letter-spacing: -1px; }
+  .logo-dot { background-color: var(--orange); border-radius: 50%; }
+  .logo-light { font-weight: 300; letter-spacing: 4px; }
   .header-logo-text { color: var(--dark); transition: color 0.3s; }
   .header-logo-text .logo-bold { font-size: 24px; }
   .header-logo-text .logo-light { font-size: 21px; }
   .header-logo-text .logo-dot { width: 8px; height: 8px; }
-
-  /* Veľkosť loga v loadri */
   .loader-logo-text { color: var(--loader-logo); transition: color 0.3s; }
   .loader-logo-text .logo-bold { font-size: 32px; }
   .loader-logo-text .logo-light { font-size: 28px; }
   .loader-logo-text .logo-dot { width: 10px; height: 10px; }
 
-
   /* DASHBOARD GRID */
-  .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
-  .section-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; }
+  .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; transition: padding 0.3s; }
+  .section-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; transition: gap 0.3s, margin 0.3s; }
 
   /* ANIMATIONS */
   @keyframes cardPop { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -137,7 +111,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
+    transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s, padding 0.3s, gap 0.3s;
   }
   .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
 
@@ -165,32 +139,32 @@
   .card.alert-pulse:not(.animate-pop) { animation: cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .card.animate-pop.alert-pulse { animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
 
-  .card-header { white-space: nowrap; overflow: hidden; min-height: 24px; display: flex; align-items: baseline; gap: 10px; }
-  .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; }
-  .printer-name { font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-header { white-space: nowrap; overflow: hidden; min-height: 24px; display: flex; align-items: baseline; gap: 10px; transition: gap 0.3s; }
+  .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; transition: font-size 0.3s; }
+  .printer-name { font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
 
   /* GAUGE */
   .gauge-container { position: relative; width: 100%; aspect-ratio: 2/1.05; }
   .gauge-svg { width: 100%; height: 100%; }
-  .gauge-value { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; }
-  .val-text { font-size: 22px; font-weight: 700; line-height: 1; }
-  .val-label { font-size: 9px; color: var(--text-light); font-weight: 500; }
+  .gauge-value { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; transition: bottom 0.3s; }
+  .val-text { font-size: 22px; font-weight: 700; line-height: 1; transition: font-size 0.3s; }
+  .val-label { font-size: 9px; color: var(--text-light); font-weight: 500; transition: font-size 0.3s; }
 
   /* STATS */
-  .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; }
-  .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; }
+  .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; transition: gap 0.3s; }
+  .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; transition: width 0.3s, height 0.3s; }
   body.dark-theme .color-dot { border: 2px solid rgba(255,255,255,0.15); }
-  .material-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .material-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
   .material-name.empty { color: var(--text-light); }
   .stats-container { display: flex; justify-content: space-evenly; align-items: center; width: 100%; }
   .stat-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
-  .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
-  .stat-value { font-size: 19px; font-weight: 700; color: var(--dark); line-height: 1.1; }
+  .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; transition: font-size 0.3s; }
+  .stat-value { font-size: 19px; font-weight: 700; color: var(--dark); line-height: 1.1; transition: font-size 0.3s; }
   .stat-value.empty { color: var(--text-light); }
-  .timestamp { font-size: 10px; color: var(--text-light); margin-top: 2px; text-align: center; }
+  .timestamp { font-size: 10px; color: var(--text-light); margin-top: 2px; text-align: center; transition: font-size 0.3s; }
 
   /* STATUS BADGE */
-  .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; align-self: center; }
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; align-self: center; transition: font-size 0.3s, padding 0.3s; }
   .status-ok { background: #e8f5e9; color: #2e7d32; }
   .status-low { background: #fff3e0; color: #e65100; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
@@ -216,11 +190,11 @@
   .config-panel { position: fixed; top: 0; right: 0; width: 100%; max-width: 380px; height: 100vh; background: var(--card-bg); box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 200; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
   .config-panel.open { transform: translateX(0); }
   .config-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .config-body { flex: 1; padding: 20px 24px; }
+  .config-body { flex: 1; padding: 20px 24px; overflow-y: auto; }
   .config-field { margin-bottom: 20px; }
   .config-label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; }
   .config-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: inherit; }
-  .config-btn { width: 100%; padding: 12px; background: var(--orange); color: white; border: none; border-radius: 7px; font-weight: 700; cursor: pointer; }
+  .config-btn { width: 100%; padding: 12px; background: var(--orange); color: white; border: none; border-radius: 7px; font-weight: 700; cursor: pointer; margin-top: 10px;}
   
   /* TOGGLE SWITCH */
   .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -234,18 +208,29 @@
   .overlay.show { display: block; }
 
   /* PRÁZDNY DRŽIAK */
-  .card.empty-holder { 
-    opacity: 0.75; 
-    --card-bg: #f9f9f9;  
-    --border: #e0e0e0;
-  }
+  .card.empty-holder { opacity: 0.75; --card-bg: #f9f9f9; --border: #e0e0e0; }
   .card.empty-holder .printer-type { color: var(--text-light) !important; }
+  body.dark-theme .card.empty-holder { opacity: 0.6; --card-bg: #181818; --border: #333333; }
 
-  body.dark-theme .card.empty-holder { 
-    opacity: 0.6; 
-    --card-bg: #181818; 
-    --border: #333333;
-  }
+  /* ───────────────────────────────────────────────────────── */
+  /* KOMPAKTNÝ REŽIM (COMPACT MODE)                            */
+  /* ───────────────────────────────────────────────────────── */
+  body.compact-mode .dashboard { padding: 10px 14px; }
+  body.compact-mode .section-row { gap: 8px; margin-bottom: 8px; }
+  body.compact-mode .card { padding: 10px 12px 10px; gap: 6px; }
+  body.compact-mode .card-header { min-height: 18px; gap: 6px; }
+  body.compact-mode .printer-type { font-size: 14px; }
+  body.compact-mode .printer-name { font-size: 12px; }
+  body.compact-mode .gauge-value { bottom: 6px; }
+  body.compact-mode .val-text { font-size: 16px; }
+  body.compact-mode .val-label { font-size: 8px; }
+  body.compact-mode .material-row { min-height: 16px; gap: 5px; }
+  body.compact-mode .color-dot { width: 14px; height: 14px; }
+  body.compact-mode .material-name { font-size: 11px; }
+  body.compact-mode .stat-label { font-size: 8px; }
+  body.compact-mode .stat-value { font-size: 14px; }
+  body.compact-mode .status-badge { font-size: 9px; padding: 2px 7px; }
+  body.compact-mode .timestamp { font-size: 8px; margin-top: 0; }
 
   /* RESPOSIVE */
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
@@ -271,16 +256,13 @@
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loader-container">
-    
     <div class="logo-text loader-logo-text">
       <span class="logo-bold">SPOOL</span>
       <span class="logo-dot"></span>
       <span class="logo-light">MONITOR</span>
     </div>
-
     <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
-    
-    <div class="loading-text">Načítavam systém...</div>
+
   </div>
 </div>
 
@@ -293,16 +275,31 @@
   </div>
   <div class="config-body">
     <div class="config-field" style="display:flex; align-items:center; justify-content:space-between;">
-      <label class="config-label">Tmavý režim</label>
+      <label class="config-label" style="margin-bottom:0;">Tmavý režim</label>
       <label class="switch">
         <input type="checkbox" id="cfgDarkMode" onchange="toggleDarkMode()">
         <span class="slider"></span>
       </label>
     </div>
+    
+    <div class="config-field" style="display:flex; align-items:center; justify-content:space-between;">
+      <label class="config-label" style="margin-bottom:0;">Kompaktný režim</label>
+      <label class="switch">
+        <input type="checkbox" id="cfgCompactMode" onchange="toggleCompactMode()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="config-field">
+      <label class="config-label">Limit varovania v gramoch</label>
+      <input class="config-input" id="cfgThreshold" type="number" value="50" min="0" max="500" step="10">
+    </div>
+
     <div class="config-field">
       <label class="config-label">Interval obnovy (minúty)</label>
       <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60">
     </div>
+
     <button class="config-btn" onclick="saveAndLoad()">ULOŽIŤ A OBNOVIŤ</button>
   </div>
 </div>
@@ -310,13 +307,11 @@
 <div class="header">
   <div class="header-logo"><img src="MAS.png" alt="MAS" class="mas-img"></div>
   <div class="header-title-container">
-    
     <div class="logo-text header-logo-text">
       <span class="logo-bold">SPOOL</span>
       <span class="logo-dot"></span>
       <span class="logo-light">MONITOR</span>
     </div>
-
   </div>
   <div class="prusa-logo"><img src="prusa.svg" alt="Prusa" class="prusa-img"></div>
 </div>
@@ -350,15 +345,21 @@ if ('serviceWorker' in navigator) {
 const URL = 'https://script.google.com/macros/s/AKfycbx9s_1ZtZWvnLcaMMHCKziu2fZdqXWcaiJ47197buBIW533-KCTv1td0vsD_voGS_-M/exec';
 let CONFIG = {
   interval: parseInt(localStorage.getItem('interval') || '2'),
-  darkMode: localStorage.getItem('darkMode') === 'true'
+  threshold: parseInt(localStorage.getItem('threshold') || '50'),
+  darkMode: localStorage.getItem('darkMode') === 'true',
+  compactMode: localStorage.getItem('compactMode') === 'true'
 };
 let refreshTimer = null;
 let isInitialLoad = true;
 
-// ─── INIT THEME ────────────────────────────────────────────────────────────
+// ─── INIT THEME & MODES ────────────────────────────────────────────────────
 if (CONFIG.darkMode) {
   document.body.classList.add('dark-theme');
   document.getElementById('cfgDarkMode').checked = true;
+}
+if (CONFIG.compactMode) {
+  document.body.classList.add('compact-mode');
+  document.getElementById('cfgCompactMode').checked = true;
 }
 
 const MK3S_SPOOLS = [
@@ -412,7 +413,7 @@ function renderCard(spool, data, index) {
 
   if (isEmpty) { statusClass = "status-empty"; statusText = "Prázdny držiak"; isAlert = true; }
   else if (weight === 0) { statusClass = "status-empty"; statusText = "Prázdna cievka"; isAlert = true; }
-  else if (weight < 50) { statusClass = "status-low"; statusText = "Málo filamentu"; isAlert = true; }
+  else if (weight < CONFIG.threshold) { statusClass = "status-low"; statusText = "Málo filamentu"; isAlert = true; }
 
   const weightDisp = isEmpty ? "-" : weight.toLocaleString('sk', {minimumFractionDigits:1});
   const lengthDisp = isEmpty ? "-" : (data.length || 0).toLocaleString('sk', {minimumFractionDigits:1});
@@ -433,7 +434,7 @@ function renderCard(spool, data, index) {
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
     <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span></div>
     <div class="gauge-container">${createGaugeSVG(gaugeVal, 1000)}
-      <div class="gauge-value" style="color:${weight < 100 && !isEmpty ? 'var(--red)' : 'var(--dark)'}">
+      <div class="gauge-value" style="color:${weight < CONFIG.threshold && !isEmpty ? 'var(--red)' : 'var(--dark)'}">
         <span class="val-text">${weightDisp}</span><span class="val-label">Váha (g)</span>
       </div>
     </div>
@@ -484,16 +485,31 @@ async function refreshData() {
 }
 
 // ─── UI CONTROLS ───────────────────────────────────────────────────────────
-function openConfig() { document.getElementById('configPanel').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
-function closeConfig() { document.getElementById('configPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+function openConfig() { 
+  document.getElementById('cfgInterval').value = CONFIG.interval;
+  document.getElementById('cfgThreshold').value = CONFIG.threshold;
+  document.getElementById('configPanel').classList.add('open'); 
+  document.getElementById('overlay').classList.add('show'); 
+}
+function closeConfig() { 
+  document.getElementById('configPanel').classList.remove('open'); 
+  document.getElementById('overlay').classList.remove('show'); 
+}
 function toggleDarkMode() {
   CONFIG.darkMode = document.getElementById('cfgDarkMode').checked;
   localStorage.setItem('darkMode', CONFIG.darkMode);
   document.body.classList.toggle('dark-theme', CONFIG.darkMode);
 }
+function toggleCompactMode() {
+  CONFIG.compactMode = document.getElementById('cfgCompactMode').checked;
+  localStorage.setItem('compactMode', CONFIG.compactMode);
+  document.body.classList.toggle('compact-mode', CONFIG.compactMode);
+}
 function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
+  CONFIG.threshold = parseInt(document.getElementById('cfgThreshold').value) || 50;
   localStorage.setItem('interval', CONFIG.interval);
+  localStorage.setItem('threshold', CONFIG.threshold);
   closeConfig();
   location.reload();
 }
