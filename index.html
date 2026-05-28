@@ -27,9 +27,9 @@
     --card-bg: #ffffff;
     --gauge-bg: #e8e8e8;
     --gauge-track: #e0e0e0;
+    --loader-logo: #1a1a1a;
   }
 
-  /* DARK THEME VARIABLES */
   body.dark-theme {
     --bg: #121212;
     --card-bg: #1e1e1e;
@@ -41,6 +41,7 @@
     --pulse-shadow: rgba(255, 82, 82, 0.25);
     --gauge-bg: #2a2a2a;
     --gauge-track: #3a3a3a;
+    --loader-logo: #ffffff;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,65 +70,30 @@
   }
 
   body.dark-theme .header { background: #c0c0c0; }
-
   .header-logo { display: flex; align-items: center; }
-  .mas-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
+  .mas-img { height: 44px; width: auto; object-fit: contain; }
   
   .header-title {
-    font-family: 'Montserrat', sans-serif;
     font-size: 26px;
     font-weight: 700;
     letter-spacing: 2px;
     color: var(--dark);
-    transition: font-size 0.3s, color 0.3s;
     text-align: center;
   }
-
   body.dark-theme .header-title { color: #1a1a1a; }
+  .prusa-img { height: 44px; width: auto; object-fit: contain; }
 
-  .prusa-logo { display: flex; align-items: center; justify-content: flex-end; }
-  .prusa-img { height: 44px; width: auto; object-fit: contain; transition: height 0.3s; }
+  /* DASHBOARD GRID */
+  .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
+  .section-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; }
 
-  body.dark-theme .mas-img, body.dark-theme .prusa-img { filter: drop-shadow(0px 0px 2px rgba(255,255,255,0.2)); }
+  /* ANIMATIONS */
+  @keyframes cardPop { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes gaugeFill { 0% { stroke-dashoffset: 232.48; } 100% { stroke-dashoffset: var(--target-offset); } }
+  @keyframes alertBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  @keyframes cardPulseAlert { 0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); } 50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); } }
 
-  /* MAIN GRID */
-  .dashboard {
-    padding: 20px 24px;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .section-row {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  /* ───────────────────────────────────────────────────────── */
-  /* ANIMÁCIE A ICH SYNCHRONIZÁCIA                             */
-  /* ───────────────────────────────────────────────────────── */
-  @keyframes cardPop {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes gaugeFill {
-    0% { stroke-dashoffset: 232.48; }
-    100% { stroke-dashoffset: var(--target-offset); }
-  }
-
-  @keyframes alertBlink {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-  }
-
-  @keyframes cardPulseAlert {
-    0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); }
-  }
-
-  /* KARTA BEZ ANIMÁCIE (ŠTANDARDNÝ STAV) */
+  /* CARDS */
   .card {
     background: var(--card-bg);
     border-radius: 10px;
@@ -139,232 +105,61 @@
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
   }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
 
-  .card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  }
-
-  /* ───────────────────────────────────────────────────────── */
-  /* SKUPINY TLAČIARNÍ - FARBY POZADIA A LOKÁLNEHO OKRAJA      */
-  /* ───────────────────────────────────────────────────────── */
+  /* PRINTER TYPES COLORS */
   .card.type-mk3s { --card-bg: #f0f7ff; --border: #cce4ff; }
   .card.type-mk3s .printer-type { color: #1976d2; }
-
   .card.type-mk4s { --card-bg: #f2fcf5; --border: #c8e6c9; }
   .card.type-mk4s .printer-type { color: #388e3c; }
-
   .card.type-xl { --card-bg: #fff8f0; --border: #ffe0b2; }
   .card.type-xl .printer-type { color: #f57c00; }
-
   .card.type-xl2 { --card-bg: #fdf4ff; --border: #e1bee7; }
   .card.type-xl2 .printer-type { color: #8e24aa; }
 
-  /* DARK MODE FARBY PRE SKUPINY */
   body.dark-theme .card.type-mk3s { --card-bg: #151e29; --border: #20354b; }
   body.dark-theme .card.type-mk3s .printer-type { color: #64b5f6; }
-
   body.dark-theme .card.type-mk4s { --card-bg: #152219; --border: #24422c; }
   body.dark-theme .card.type-mk4s .printer-type { color: #81c784; }
-
   body.dark-theme .card.type-xl { --card-bg: #291e14; --border: #4a3018; }
   body.dark-theme .card.type-xl .printer-type { color: #ffb74d; }
-
   body.dark-theme .card.type-xl2 { --card-bg: #26162b; --border: #42214d; }
   body.dark-theme .card.type-xl2 .printer-type { color: #ba68c8; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* APLIKÁCIA ANIMÁCIÍ ZÁVISLÁ NA --delay PRE SYNCHRONIZÁCIU  */
-  /* ───────────────────────────────────────────────────────── */
-  .card.animate-pop {
-    opacity: 0;
-    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: var(--delay, 0s);
-  }
+  /* ANIMATION APPLICATION */
+  .card.animate-pop { opacity: 0; animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: var(--delay, 0s); }
+  .card.alert-pulse:not(.animate-pop) { animation: cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
+  .card.animate-pop.alert-pulse { animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
 
-  .card.alert-pulse:not(.animate-pop) {
-    animation: cardPulseAlert 2s infinite ease-in-out;
-    animation-delay: var(--delay, 0s);
-  }
-
-  .card.animate-pop.alert-pulse {
-    animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out;
-    animation-delay: var(--delay, 0s);
-  }
-
-  .card-header {
-    white-space: nowrap;
-    overflow: hidden;
-    min-height: 24px;
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  .printer-type {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    flex-shrink: 0;
-    letter-spacing: 0.5px;
-  }
-
-  .printer-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--dark);
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; }
+  .printer-name { font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* GAUGE */
-  .gauge-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 2/1.05;
-  }
+  .gauge-container { position: relative; width: 100%; aspect-ratio: 2/1.05; }
+  .gauge-svg { width: 100%; height: 100%; }
+  .gauge-value { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .val-text { font-size: 22px; font-weight: 700; line-height: 1; }
+  .val-label { font-size: 9px; color: var(--text-light); font-weight: 500; }
 
-  .gauge-svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .gauge-value {
-    position: absolute;
-    bottom: 12px;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1px;
-    font-family: 'Montserrat', sans-serif;
-  }
-
-  .val-text {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .val-label {
-    font-size: 9px;
-    color: var(--text-light);
-    font-weight: 500;
-  }
-
-  /* COLOR DOT + MATERIAL */
-  .material-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 22px;
-  }
-
-  .color-dot {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid rgba(0,0,0,0.12);
-    flex-shrink: 0;
-  }
-  body.dark-theme .color-dot { border: 2px solid rgba(255,255,255,0.15); }
-
-  .material-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .material-name.empty {
-    color: var(--text-light);
-  }
-
-  /* ŠTATISTIKY */
-  .stats-container {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    width: 100%;
-  }
-
-  .stat-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    flex: 1;
-  }
-
-  .stat-label {
-    font-size: 10px;
-    color: var(--text-light);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: center;
-  }
-
-  .stat-value {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 19px;
-    font-weight: 700;
-    color: var(--dark);
-    line-height: 1.1;
-  }
-
-  .stat-value.empty { color: var(--text-light); }
-
-  .timestamp {
-    font-size: 10px;
-    color: var(--text-light);
-    font-weight: 400;
-    margin-top: 2px;
-    text-align: center;
-  }
+  /* STATS */
+  .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; }
+  .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; }
+  .material-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stats-container { display: flex; justify-content: space-evenly; align-items: center; width: 100%; }
+  .stat-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+  .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 19px; font-weight: 700; color: var(--dark); line-height: 1.1; }
+  .timestamp { font-size: 10px; color: var(--text-light); margin-top: 2px; text-align: center; }
 
   /* STATUS BADGE */
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-    align-self: center;
-  }
-
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; align-self: center; }
   .status-ok { background: #e8f5e9; color: #2e7d32; }
-  
-  .status-low { 
-    background: #fff3e0; 
-    color: #e65100; 
-    animation: alertBlink 2s infinite ease-in-out; 
-    animation-delay: var(--delay, 0s);
-  }
-  .status-empty { 
-    background: #fce4e4; 
-    color: #c62828; 
-    border: 1px solid #ef9a9a; 
-    animation: alertBlink 2s infinite ease-in-out;
-    animation-delay: var(--delay, 0s);
-  }
-  
+  .status-low { background: #fff3e0; color: #e65100; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
+  .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  body.dark-theme .status-ok { background: rgba(46, 125, 50, 0.2); color: #81c784; }
-  body.dark-theme .status-low { background: rgba(230, 81, 0, 0.2); color: #ffb74d; }
-  body.dark-theme .status-empty { background: rgba(198, 40, 40, 0.2); color: #e57373; border-color: rgba(229, 115, 115, 0.3); }
-
   /* ───────────────────────────────────────────────────────── */
-  /* PRUSA LOADER ANIMATION                                    */
+  /* PRUSA CONNECT STYLE LOADING SCREEN                        */
   /* ───────────────────────────────────────────────────────── */
   .loading-overlay {
     position: fixed;
@@ -374,282 +169,133 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 999;
-    gap: 16px;
-    transition: opacity 0.4s, background-color 0.3s;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
   }
 
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; /* Medzera medzi logom a cievkou */
+  }
+
+  /* LOGO SPOOL MONITOR */
+  .spool-monitor-logo {
+    height: 32px;
+    width: auto;
+    fill: var(--loader-logo);
+    transition: fill 0.3s;
+  }
 
   .prusa-loader {
     width: 64px;
     height: 64px;
-    /* Odstránili sme rotáciu, SVG sa točí samo zvnútra */
     transition: filter 0.3s;
   }
 
-  /* Trik pre Dark mode: prevráti čiernu na bielu, ale oranžovú (vďaka hue-rotate) vráti späť do originálneho odtieňa! */
+  /* Trik pre Dark mode cievku ak nemáš -inverse súbor */
   body.dark-theme .prusa-loader {
     filter: invert(1) hue-rotate(180deg) brightness(1.2);
   }
 
   .loading-text {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
-    letter-spacing: 2px;
-    color: var(--text-light);
-  }
-
-  /* CONFIG PANEL */
-  .config-panel {
-    position: fixed;
-    top: 0; right: 0;
-    width: 100%;
-    max-width: 380px;
-    height: 100vh;
-    background: var(--card-bg);
-    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
-    z-index: 200;
-    transform: translateX(100%);
-    transition: transform 0.3s ease, background-color 0.3s;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .config-panel.open { transform: translateX(0); }
-
-  .config-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .config-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--dark);
-  }
-
-  .config-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 22px;
-    color: var(--text-light);
-    padding: 4px;
-    line-height: 1;
-  }
-
-  .config-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 24px;
-  }
-
-  .config-section { margin-bottom: 24px; }
-
-  .config-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-bottom: 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .config-field { margin-bottom: 14px; }
-
-  .config-label {
+    margin-top: 15px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-    display: block;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    text-transform: uppercase;
   }
 
-  .config-input {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s, background-color 0.3s, color 0.3s;
-  }
-  .config-input:focus { border-color: var(--orange); }
+  /* CONTROLS */
+  .controls { padding: 12px 24px 0; display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; }
+  .last-update { font-size: 12px; color: var(--text-light); }
+  .btn-icon { background: var(--card-bg); border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: 'Montserrat', sans-serif; }
+  .btn-icon:hover { background: var(--orange); color: white; border-color: var(--orange); }
+  .refresh-indicator { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
 
-  .config-btn {
-    width: 100%;
-    padding: 11px;
-    background: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 7px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 6px;
-  }
-  .config-btn:hover { background: #c9420a; }
-
+  /* CONFIG PANEL */
+  .config-panel { position: fixed; top: 0; right: 0; width: 100%; max-width: 380px; height: 100vh; background: var(--card-bg); box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 200; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+  .config-panel.open { transform: translateX(0); }
+  .config-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .config-body { flex: 1; padding: 20px 24px; }
+  .config-field { margin-bottom: 20px; }
+  .config-label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; }
+  .config-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: inherit; }
+  .config-btn { width: 100%; padding: 12px; background: var(--orange); color: white; border: none; border-radius: 7px; font-weight: 700; cursor: pointer; }
+  
   /* TOGGLE SWITCH */
   .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; inset: 0;
-    background-color: var(--border); transition: .3s; border-radius: 24px;
-  }
-  .slider:before {
-    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-    background-color: white; transition: .3s; border-radius: 50%;
-  }
+  .slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
   input:checked + .slider { background-color: var(--orange); }
   input:checked + .slider:before { transform: translateX(20px); }
 
-  /* TOP CONTROLS */
-  .controls {
-    padding: 12px 24px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  .last-update { font-size: 12px; color: var(--text-light); }
-
-  .controls-right { display: flex; gap: 8px; align-items: center; }
-
-  .btn-icon {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 7px 14px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s;
-    font-family: 'Montserrat', sans-serif;
-  }
-  .btn-icon:hover { background: var(--orange); color: white; border-color: var(--orange); }
-
-  .refresh-indicator {
-    width: 8px; height: 8px; border-radius: 50%; background: #4caf50;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    z-index: 190; display: none; transition: opacity 0.3s;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; display: none; }
   .overlay.show { display: block; }
 
-  /* CARD MODIFICATIONS FOR EMPTY HOLDER */
-  .card.empty-holder { opacity: 0.75; }
-  body.dark-theme .card.empty-holder { opacity: 0.5; }
-
-  /* MEDIA QUERIES */
-  @media (max-width: 1200px) {
-    .section-row { grid-template-columns: repeat(4, 1fr); }
-  }
-  @media (max-width: 992px) {
-    .section-row { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 768px) {
-    .section-row { grid-template-columns: repeat(2, 1fr); }
-    .header-title { font-size: 20px; }
-    .mas-img, .prusa-img { height: 36px; }
-  }
-  @media (max-width: 480px) {
-    .header { padding: 12px 16px; }
-    .header-title { font-size: 15px; letter-spacing: 1px; }
-    .mas-img, .prusa-img { height: 26px; }
-    
-    .dashboard { padding: 16px; }
-    .section-row { grid-template-columns: 1fr; gap: 12px; } 
-    
-    .controls { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px 16px 0; }
-    .controls-right { width: 100%; display: flex; gap: 10px; }
-    .btn-icon { flex: 1; }
-    
-    .gauge-container { max-width: 280px; margin: 0 auto; }
-  }
+  @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px) { .section-row { grid-template-columns: repeat(2, 1fr); } .header-title { font-size: 20px; } }
+  @media (max-width: 480px) { .section-row { grid-template-columns: 1fr; } .header { padding: 10px 15px; } .header-title { font-size: 16px; } }
 </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
-  <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
-  <div class="loading-text">NAČÍTAVAM DÁTA...</div>
+  <div class="loader-container">
+    <svg class="spool-monitor-logo" viewBox="0 0 350 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="30" font-family="Montserrat" font-size="32" font-weight="800" letter-spacing="-1">SPOOL</text>
+      <circle cx="118" cy="22" r="5" fill="#E8500A" />
+      <text x="135" y="30" font-family="Montserrat" font-size="28" font-weight="300" letter-spacing="4">MONITOR</text>
+    </svg>
+
+    <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
+    
+    <div class="loading-text">Načítavam systém...</div>
+  </div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeConfig()"></div>
 
 <div class="config-panel" id="configPanel">
   <div class="config-header">
-    <div class="config-title">⚙ NASTAVENIA</div>
-    <button class="config-close" onclick="closeConfig()">✕</button>
+    <div style="font-weight: 800; font-size: 18px; letter-spacing: 1px;">NASTAVENIA</div>
+    <button style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-light);" onclick="closeConfig()">✕</button>
   </div>
   <div class="config-body">
-    <div class="config-section">
-      <div class="config-section-title">Vzhľad</div>
-      <div class="config-field" style="display:flex; align-items:center; justify-content:space-between;">
-        <label class="config-label" style="margin:0;">Tmavý režim (Dark mode)</label>
-        <label class="switch">
-          <input type="checkbox" id="cfgDarkMode" onchange="toggleDarkMode()">
-          <span class="slider round"></span>
-        </label>
-      </div>
+    <div class="config-field" style="display:flex; align-items:center; justify-content:space-between;">
+      <label class="config-label">Tmavý režim</label>
+      <label class="switch">
+        <input type="checkbox" id="cfgDarkMode" onchange="toggleDarkMode()">
+        <span class="slider"></span>
+      </label>
     </div>
-    <div class="config-section">
-      <div class="config-section-title">Automatická obnova</div>
-      <div class="config-field">
-        <label class="config-label">Interval obnovy (minúty)</label>
-        <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60" />
-      </div>
-      <button class="config-btn" onclick="saveAndLoad()">💾 ULOŽIŤ</button>
+    <div class="config-field">
+      <label class="config-label">Interval obnovy (minúty)</label>
+      <input class="config-input" id="cfgInterval" type="number" value="2" min="1" max="60">
     </div>
+    <button class="config-btn" onclick="saveAndLoad()">ULOŽIŤ A OBNOVIŤ</button>
   </div>
 </div>
 
 <div class="header">
-  <div class="header-logo">
-    <img src="MAS.png" alt="MAS" class="mas-img" />
-  </div>
+  <div class="header-logo"><img src="MAS.png" alt="MAS" class="mas-img"></div>
   <div class="header-title">FILAMENT MONITOR</div>
-  <div class="prusa-logo">
-    <img src="prusa.svg" alt="Prusa Research" class="prusa-img" />
-  </div>
+  <div class="prusa-logo"><img src="prusa.svg" alt="Prusa" class="prusa-img"></div>
 </div>
 
 <div class="controls">
   <div style="display:flex;align-items:center;gap:10px;">
     <div class="refresh-indicator" id="refreshDot"></div>
-    <span class="last-update" id="lastUpdate">Posledná aktualizácia: –</span>
+    <span class="last-update" id="lastUpdate">Čakám na dáta...</span>
   </div>
-  <div class="controls-right">
+  <div style="display:flex; gap:8px;">
     <button class="btn-icon" onclick="refreshData()">↻ OBNOVIŤ</button>
     <button class="btn-icon" onclick="openConfig()">⚙ NASTAVENIA</button>
   </div>
@@ -662,357 +308,165 @@
 </div>
 
 <script>
-// ─── PWA SERVICE WORKER REGISTRATION ───────────────────────────────────────
+// ─── PWA ───────────────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then((registration) => {
-        console.log('PWA Service Worker beží.', registration.scope);
-      })
-      .catch((error) => {
-        console.error('Chyba pri registrácii Service Workera:', error);
-      });
+    navigator.serviceWorker.register('./sw.js').catch(e => console.error(e));
   });
 }
 
-// ─── CONFIG ────────────────────────────────────────────────────────────────
-const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbx9s_1ZtZWvnLcaMMHCKziu2fZdqXWcaiJ47197buBIW533-KCTv1td0vsD_voGS_-M/exec';
-
+// ─── CONFIG & STATE ────────────────────────────────────────────────────────
+const URL = 'https://script.google.com/macros/s/AKfycbx9s_1ZtZWvnLcaMMHCKziu2fZdqXWcaiJ47197buBIW533-KCTv1td0vsD_voGS_-M/exec';
 let CONFIG = {
   interval: parseInt(localStorage.getItem('interval') || '2'),
   darkMode: localStorage.getItem('darkMode') === 'true'
 };
-
 let refreshTimer = null;
 let isInitialLoad = true;
 
-// ─── INIT THEME IMMEDIATELY ────────────────────────────────────────────────
+// ─── INIT THEME ────────────────────────────────────────────────────────────
 if (CONFIG.darkMode) {
   document.body.classList.add('dark-theme');
   document.getElementById('cfgDarkMode').checked = true;
 }
 
-// ─── SPOOL DEFINITIONS ─────────────────────────────────────────────────────
 const MK3S_SPOOLS = [
   { id: 'spool-01', label: 'PRUSA 01', type: 'MK3S' },
   { id: 'spool-02', label: 'PRUSA 02', type: 'MK3S' },
   { id: 'spool-03', label: 'PRUSA 03', type: 'MK3S' },
   { id: 'spool-04', label: 'PRUSA 04', type: 'MK4S' },
-  { id: 'spool-05', label: 'PRUSA 05', type: 'MK4S' },
+  { id: 'spool-05', label: 'PRUSA 05', type: 'MK4S' }
 ];
-
 const XL_SPOOLS = [
   { id: 'spool-XL01', label: 'TOOL 01', type: 'XL' },
   { id: 'spool-XL02', label: 'TOOL 02', type: 'XL' },
   { id: 'spool-XL03', label: 'TOOL 03', type: 'XL' },
   { id: 'spool-XL04', label: 'TOOL 04', type: 'XL' },
-  { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
+  { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' }
 ];
-
 const XL2_SPOOLS = [
   { id: 'spool-XL2-01', label: 'TOOL 01', type: 'XL2' },
   { id: 'spool-XL2-02', label: 'TOOL 02', type: 'XL2' }
 ];
 
-// ─── GAUGE SVG S PODMIENENOU ANIMÁCIOU ─────────────────────────────────────
+// ─── GAUGE DRAWING ─────────────────────────────────────────────────────────
 function createGaugeSVG(value, max) {
   const pct = max > 0 ? Math.min(value / max, 1) : 0;
   const cx = 100, cy = 98, r = 74;
-
-  function polar(deg) {
-    const rad = deg * Math.PI / 180;
-    return [
-      cx + r * Math.cos(rad),
-      cy - r * Math.sin(rad)
-    ];
-  }
-
-  const [sx, sy] = polar(180);
-  const [ex, ey] = polar(0);
-  const pathDef = `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 1 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
-
-  const color = value <= 0 ? 'var(--gauge-track)' : value < 100 ? 'var(--red)' : '#E8500A';
+  const rad = Math.PI;
+  const sx = cx + r * Math.cos(rad), sy = cy - r * Math.sin(rad);
+  const ex = cx + r * Math.cos(0), ey = cy - r * Math.sin(0);
+  const pathDef = `M ${sx} ${sy} A ${r} ${r} 0 1 1 ${ex} ${ey}`;
+  const color = value <= 0 ? 'var(--gauge-track)' : value < 100 ? 'var(--red)' : 'var(--orange)';
   const pathLength = 232.48;
   const targetOffset = pathLength * (1 - pct);
-
   const animStyle = isInitialLoad 
     ? `style="--target-offset: ${targetOffset}; animation: gaugeFill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;"`
     : `style="stroke-dashoffset: ${targetOffset};"`;
 
-  return `
-    <svg viewBox="0 0 200 108" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
-      <path d="${pathDef}" fill="none" stroke="var(--gauge-track)" stroke-width="13" stroke-linecap="round"/>
-      ${pct > 0.001 ? `
-        <path d="${pathDef}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"
-              stroke-dasharray="${pathLength}" 
-              ${animStyle} />
-      ` : ''}
-    </svg>
-  `;
+  return `<svg viewBox="0 0 200 108" class="gauge-svg">
+    <path d="${pathDef}" fill="none" stroke="var(--gauge-track)" stroke-width="13" stroke-linecap="round"/>
+    ${pct > 0.001 ? `<path d="${pathDef}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${pathLength}" ${animStyle} />` : ''}
+  </svg>`;
 }
 
-// ─── RENDER CARD ───────────────────────────────────────────────────────────
-function renderCard(spool, data, index = 0) {
+// ─── CARD RENDERING ────────────────────────────────────────────────────────
+function renderCard(spool, data, index) {
   const hasData = !!data;
-  const jsonIsEmpty = hasData ? data.isEmpty : true;
-  const weight = hasData && data.weight !== null ? data.weight : null;
-  const length = hasData && data.length !== null ? data.length : null;
-  const material = hasData ? (data.material || '') : '';
-  const colorHex = hasData ? (data.color || 'FFFFFF') : 'FFFFFF';
-  const ts = hasData ? data.ts : null;
-  const staleMinutes = hasData ? data.staleMinutes : null;
-
-  const maxWeight = 1000;
+  const weight = (hasData && data.weight !== null) ? data.weight : 0;
+  const isEmpty = !hasData || data.isEmpty || (data.staleMinutes > 120);
   
-  let isHolderEmpty = false;
+  let statusClass = "status-ok", statusText = "OK";
   let isAlert = false;
-  let statusBadge = '';
 
-  if (!hasData || jsonIsEmpty || (staleMinutes !== null && staleMinutes > 120)) {
-    isHolderEmpty = true;
-    isAlert = true;
-    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdny držiak</span>`;
-  } else if (weight === 0) {
-    isAlert = true;
-    statusBadge = `<span class="status-badge status-empty"><span class="status-dot"></span>Prázdna cievka</span>`;
-  } else if (weight !== null && weight < 50) {
-    isAlert = true;
-    statusBadge = `<span class="status-badge status-low"><span class="status-dot"></span>Málo filamentu</span>`;
-  } else {
-    statusBadge = `<span class="status-badge status-ok"><span class="status-dot"></span>OK</span>`;
-  }
+  if (isEmpty) { statusClass = "status-empty"; statusText = "Prázdny držiak"; isAlert = true; }
+  else if (weight === 0) { statusClass = "status-empty"; statusText = "Prázdna cievka"; isAlert = true; }
+  else if (weight < 100) { statusClass = "status-low"; statusText = "Málo filamentu"; isAlert = true; }
 
-  const gaugeVal = (weight !== null && !isHolderEmpty) ? weight : 0;
-
-  let timeAgo = '';
-  if (ts) {
-    if (staleMinutes === 0) timeAgo = 'práve teraz';
-    else if (staleMinutes === 1) timeAgo = 'pred 1 min';
-    else if (staleMinutes < 60) timeAgo = `pred ${staleMinutes} min`;
-    else if (staleMinutes < 1440) timeAgo = `pred ${Math.floor(staleMinutes/60)} hod`;
-    else timeAgo = `pred ${Math.floor(staleMinutes/1440)} dňami`;
-    
-    timeAgo = `${ts} (${timeAgo})`;
-  }
-
-  const bgStyle = `#${colorHex.replace('#','')}`;
-
-  const weightDisplay = (!isHolderEmpty && weight !== null) 
-    ? weight.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
-    : '-';
-    
-  const lengthDisplay = (!isHolderEmpty && length !== null) 
-    ? length.toLocaleString('sk', {minimumFractionDigits:1, maximumFractionDigits:1}) 
-    : '-';
-
-  let materialDisplay = '';
-  if (isHolderEmpty) {
-    materialDisplay = `<span class="material-name empty">-</span>`;
-  } else {
-    materialDisplay = `
-      <div class="color-dot" style="background:${bgStyle};"></div>
-      <span class="material-name${!material ? ' empty' : ''}">${material || 'Neznámy materiál'}</span>
-    `;
-  }
-
-  let tempHtml = '';
-  if (hasData && data.temp !== null && data.temp !== undefined && data.temp !== '') {
-    const tempDisplay = isHolderEmpty ? '-' : `${Number(data.temp).toLocaleString('sk', {maximumFractionDigits:1})} °C`;
-    tempHtml = `
-      <div class="stat-col">
-        <span class="stat-label">Teplota</span>
-        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">${tempDisplay}</span>
-      </div>
-    `;
-  }
-
-  let humHtml = '';
-  if (hasData && data.hum !== null && data.hum !== undefined && data.hum !== '') {
-    const humDisplay = isHolderEmpty ? '-' : `${Number(data.hum).toLocaleString('sk', {maximumFractionDigits:0})} %`;
-    humHtml = `
-      <div class="stat-col">
-        <span class="stat-label">Vlhkosť</span>
-        <span class="stat-value${isHolderEmpty ? ' empty' : ''}">${humDisplay}</span>
-      </div>
-    `;
-  }
-
+  const weightDisp = isEmpty ? "-" : weight.toLocaleString('sk', {minimumFractionDigits:1});
+  const lengthDisp = isEmpty ? "-" : (data.length || 0).toLocaleString('sk', {minimumFractionDigits:1});
+  const material = isEmpty ? "-" : (data.material || "Neznámy");
+  const color = isEmpty ? "transparent" : `#${data.color}`;
+  
   const typeClass = 'type-' + spool.type.toLowerCase();
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const alertClass = isAlert ? ' alert-pulse' : '';
-  
   const animStyle = isInitialLoad ? `style="--delay: ${index * 0.05}s;"` : '';
-  
-  const textValueColor = (gaugeVal > 0 && gaugeVal < 100 && !isHolderEmpty) ? 'var(--red)' : 'var(--dark)';
 
-  return `
-    <div class="card ${typeClass}${isHolderEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
-      <div class="card-header">
-        <span class="printer-type">${spool.type}</span>
-        <span class="printer-name">${spool.label}</span>
+  let statsHtml = `<div class="stat-col"><span class="stat-label">Teplota</span><span class="stat-value">${!isEmpty && data.temp ? data.temp+'°C' : '-'}</span></div>
+                   <div class="stat-col"><span class="stat-label">Dĺžka (m)</span><span class="stat-value">${lengthDisp}</span></div>
+                   <div class="stat-col"><span class="stat-label">Vlhkosť</span><span class="stat-value">${!isEmpty && data.hum ? data.hum+'%' : '-'}</span></div>`;
+
+  return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
+    <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span></div>
+    <div class="gauge-container">${createGaugeSVG(weight, 1000)}
+      <div class="gauge-value" style="color:${weight < 100 && !isEmpty ? 'var(--red)' : 'var(--dark)'}">
+        <span class="val-text">${weightDisp}</span><span class="val-label">Váha (g)</span>
       </div>
-
-      <div class="gauge-container">
-        ${createGaugeSVG(gaugeVal, maxWeight)}
-        <div class="gauge-value" style="color:${textValueColor}">
-          <span class="val-text">${weightDisplay}</span>
-          <span class="val-label">Váha (g)</span>
-        </div>
-      </div>
-
-      <div class="material-row">
-        ${materialDisplay}
-      </div>
-
-      <div class="stats-container">
-        ${tempHtml}
-        <div class="stat-col">
-          <span class="stat-label">Dĺžka (m)</span>
-          <span class="stat-value${isHolderEmpty ? ' empty' : ''}">
-            ${lengthDisplay}
-          </span>
-        </div>
-        ${humHtml}
-      </div>
-
-      ${statusBadge}
-      ${timeAgo ? `<div class="timestamp">${timeAgo}</div>` : '<div class="timestamp">–</div>'}
     </div>
-  `;
+    <div class="material-row"><div class="color-dot" style="background:${color}"></div><span class="material-name">${material}</span></div>
+    <div class="stats-container">${statsHtml}</div>
+    <span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusText}</span>
+    <div class="timestamp">${data?.ts || spool.id}</div>
+  </div>`;
 }
 
-// ─── RENDER ALL ────────────────────────────────────────────────────────────
-function renderDashboard(dataMap) {
-  const mk3sEl = document.getElementById('row-mk3s');
-  const xlEl = document.getElementById('row-xl');
-  const xl2El = document.getElementById('row-xl2');
-
-  mk3sEl.innerHTML = MK3S_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i)).join('');
-  xlEl.innerHTML = XL_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length)).join('');
-  xl2El.innerHTML = XL2_SPOOLS.map((s, i) => renderCard(s, dataMap[s.id] || null, i + MK3S_SPOOLS.length + XL_SPOOLS.length)).join('');
-}
-
-// ─── FETCH FROM GOOGLE APPS SCRIPT ─────────────────────────────────────────
-async function fetchSheetData() {
-  const url = `${HARDCODED_URL}?action=getData`;
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    
-    const map = {};
-    if (json && json.spools && Array.isArray(json.spools)) {
-      json.spools.forEach(row => {
-        map[row.id] = {
-          nfc:          row.nfc || '',
-          material:     row.material || '',
-          color:        (row.color || 'FFFFFF').replace('#', ''),
-          weight:       typeof row.weight === 'number' ? row.weight : null,
-          length:       typeof row.length === 'number' ? row.length : null,
-          temp:         row.temp !== null ? row.temp : null,
-          hum:          row.hum !== null ? row.hum : null,
-          ts:           row.ts || null,
-          staleMinutes: row.staleMinutes !== null ? row.staleMinutes : null,
-          isEmpty:      row.isEmpty || false
-        };
-      });
-
-      // Zdieľanie teploty a vlhkosti z XL05 pre XL01 až XL04
-      const xl05 = map['spool-XL05'];
-      if (xl05) {
-        ['spool-XL01', 'spool-XL02', 'spool-XL03', 'spool-XL04'].forEach(id => {
-          if (map[id]) {
-            if (xl05.temp !== null) map[id].temp = xl05.temp;
-            if (xl05.hum !== null) map[id].hum = xl05.hum;
-          }
-        });
-      }
-
-      // Zdieľanie teploty a vlhkosti z XL2-01 pre ostatné nástroje XL2
-      const xl2_01 = map['spool-XL2-01'];
-      if (xl2_01) {
-        ['spool-XL2-02', 'spool-XL2-03', 'spool-XL2-04', 'spool-XL2-05'].forEach(id => {
-          if (map[id]) {
-            if (xl2_01.temp !== null) map[id].temp = xl2_01.temp;
-            if (xl2_01.hum !== null) map[id].hum = xl2_01.hum;
-          }
-        });
-      }
-    }
-    return map;
-  } catch (e) {
-    console.error('Chyba pri načítaní:', e);
-    return null;
-  }
-}
-
-// ─── REFRESH ────────────────────────────────────────────────────────────────
+// ─── DATA FETCHING ─────────────────────────────────────────────────────────
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
+  try {
+    const res = await fetch(URL + '?action=getData');
+    const json = await res.json();
+    const map = {};
+    json.spools.forEach(s => map[s.id] = s);
 
-  let dataMap = await fetchSheetData();
-  if (!dataMap) dataMap = {}; 
+    // Zdieľanie senzorov XL
+    if (map['spool-XL05']) {
+      ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
+        if (map[id]) { map[id].temp = map['spool-XL05'].temp; map[id].hum = map['spool-XL05'].hum; }
+      });
+    }
+    // Zdieľanie senzorov XL2
+    if (map['spool-XL2-01']) {
+      if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
+    }
 
-  renderDashboard(dataMap);
-  
-  isInitialLoad = false;
-  
-  document.getElementById('lastUpdate').textContent =
-    'Posledná aktualizácia: ' + new Date().toLocaleTimeString('sk');
-  document.getElementById('refreshDot').style.background = '#4caf50';
-  hideLoader();
-}
-
-function hideLoader() {
-  document.getElementById('loadingOverlay').classList.add('hidden');
-}
-
-// ─── CONFIG UI & THEME ──────────────────────────────────────────────────────
-function openConfig() {
-  document.getElementById('cfgInterval').value = CONFIG.interval;
-  document.getElementById('cfgDarkMode').checked = CONFIG.darkMode;
-  document.getElementById('configPanel').classList.add('open');
-  document.getElementById('overlay').classList.add('show');
-}
-
-function closeConfig() {
-  document.getElementById('configPanel').classList.remove('open');
-  document.getElementById('overlay').classList.remove('show');
-}
-
-function toggleDarkMode() {
-  const isDark = document.getElementById('cfgDarkMode').checked;
-  CONFIG.darkMode = isDark;
-  localStorage.setItem('darkMode', isDark);
-
-  if (isDark) {
-    document.body.classList.add('dark-theme');
-  } else {
-    document.body.classList.remove('dark-theme');
+    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i)).join('');
+    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
+    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10)).join('');
+    
+    document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
+    if (isInitialLoad) {
+      setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        isInitialLoad = false;
+      }, 800);
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById('lastUpdate').textContent = 'Chyba pripojenia';
   }
+  document.getElementById('refreshDot').style.background = '#4caf50';
 }
 
-// ─── INIT ───────────────────────────────────────────────────────────────────
+// ─── UI CONTROLS ───────────────────────────────────────────────────────────
+function openConfig() { document.getElementById('configPanel').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+function closeConfig() { document.getElementById('configPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+function toggleDarkMode() {
+  CONFIG.darkMode = document.getElementById('cfgDarkMode').checked;
+  localStorage.setItem('darkMode', CONFIG.darkMode);
+  document.body.classList.toggle('dark-theme', CONFIG.darkMode);
+}
 function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
   localStorage.setItem('interval', CONFIG.interval);
-  
   closeConfig();
-  startAutoRefresh();
-  
-  document.getElementById('loadingOverlay').classList.remove('hidden');
-  refreshData();
-}
-
-function startAutoRefresh() {
-  if (refreshTimer) clearInterval(refreshTimer);
-  refreshTimer = setInterval(refreshData, CONFIG.interval * 60 * 1000);
+  location.reload();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  startAutoRefresh();
   refreshData();
+  setInterval(refreshData, CONFIG.interval * 60000);
 });
 </script>
 </body>
