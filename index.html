@@ -428,9 +428,12 @@ function renderCard(spool, data, index) {
                    <div class="stat-col"><span class="stat-label">Dĺžka (m)</span><span class="stat-value${isEmpty ? ' empty' : ''}">${lengthDisp}</span></div>
                    <div class="stat-col"><span class="stat-label">Vlhkosť</span><span class="stat-value${isEmpty ? ' empty' : ''}">${!isEmpty && data.hum ? data.hum+'%' : '-'}</span></div>`;
 
+  // Explicitne povieme grafu, že hodnota je 0, ak je držiak prázdny (aby nevykresľoval červenú čiaru)
+  const gaugeVal = isEmpty ? 0 : weight;
+
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
     <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span></div>
-    <div class="gauge-container">${createGaugeSVG(weight, 1000)}
+    <div class="gauge-container">${createGaugeSVG(gaugeVal, 1000)}
       <div class="gauge-value" style="color:${weight < 100 && !isEmpty ? 'var(--red)' : 'var(--dark)'}">
         <span class="val-text">${weightDisp}</span><span class="val-label">Váha (g)</span>
       </div>
