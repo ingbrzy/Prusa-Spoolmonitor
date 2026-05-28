@@ -384,13 +384,13 @@
   .prusa-loader {
     width: 64px;
     height: 64px;
-    /* Názov tvojho súboru naznačuje 4-sekundovú rotáciu */
-    animation: prusaSpin 4s linear infinite;
+    /* Odstránili sme rotáciu, SVG sa točí samo zvnútra */
+    transition: filter 0.3s;
   }
 
-  @keyframes prusaSpin { 
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); } 
+  /* Trik pre Dark mode: prevráti čiernu na bielu, ale oranžovú (vďaka hue-rotate) vráti späť do originálneho odtieňa! */
+  body.dark-theme .prusa-loader {
+    filter: invert(1) hue-rotate(180deg) brightness(1.2);
   }
 
   .loading-text {
