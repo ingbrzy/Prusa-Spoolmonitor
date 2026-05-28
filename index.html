@@ -138,14 +138,13 @@
   .card.alert-pulse:not(.animate-pop) { animation: cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .card.animate-pop.alert-pulse { animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
 
-  /* Tu je zmena: Zväčšený gap na 10px pre vizuálne oddelenie */
   .card-header {
     white-space: nowrap;
     overflow: hidden;
     min-height: 24px;
     display: flex;
     align-items: baseline;
-    gap: 10px; /* BOLO: 6px */
+    gap: 10px;
   }
 
   .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; }
@@ -161,11 +160,14 @@
   /* STATS */
   .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; }
   .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; }
+  body.dark-theme .color-dot { border: 2px solid rgba(255,255,255,0.15); }
   .material-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .material-name.empty { color: var(--text-light); }
   .stats-container { display: flex; justify-content: space-evenly; align-items: center; width: 100%; }
   .stat-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
-  .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
   .stat-value { font-size: 19px; font-weight: 700; color: var(--dark); line-height: 1.1; }
+  .stat-value.empty { color: var(--text-light); }
   .timestamp { font-size: 10px; color: var(--text-light); margin-top: 2px; text-align: center; }
 
   /* STATUS BADGE */
@@ -422,9 +424,9 @@ function renderCard(spool, data, index) {
   const alertClass = isAlert ? ' alert-pulse' : '';
   const animStyle = isInitialLoad ? `style="--delay: ${index * 0.05}s;"` : '';
 
-  let statsHtml = `<div class="stat-col"><span class="stat-label">Teplota</span><span class="stat-value">${!isEmpty && data.temp ? data.temp+'°C' : '-'}</span></div>
-                   <div class="stat-col"><span class="stat-label">Dĺžka (m)</span><span class="stat-value">${lengthDisp}</span></div>
-                   <div class="stat-col"><span class="stat-label">Vlhkosť</span><span class="stat-value">${!isEmpty && data.hum ? data.hum+'%' : '-'}</span></div>`;
+  let statsHtml = `<div class="stat-col"><span class="stat-label">Teplota</span><span class="stat-value${isEmpty ? ' empty' : ''}">${!isEmpty && data.temp ? data.temp+'°C' : '-'}</span></div>
+                   <div class="stat-col"><span class="stat-label">Dĺžka (m)</span><span class="stat-value${isEmpty ? ' empty' : ''}">${lengthDisp}</span></div>
+                   <div class="stat-col"><span class="stat-label">Vlhkosť</span><span class="stat-value${isEmpty ? ' empty' : ''}">${!isEmpty && data.hum ? data.hum+'%' : '-'}</span></div>`;
 
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
     <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span></div>
@@ -433,7 +435,10 @@ function renderCard(spool, data, index) {
         <span class="val-text">${weightDisp}</span><span class="val-label">Váha (g)</span>
       </div>
     </div>
-    <div class="material-row"><div class="color-dot" style="background:${color}"></div><span class="material-name">${material}</span></div>
+    <div class="material-row">
+      ${!isEmpty ? `<div class="color-dot" style="background:${color}"></div>` : ''}
+      <span class="material-name${isEmpty ? ' empty' : ''}">${material}</span>
+    </div>
     <div class="stats-container">${statsHtml}</div>
     <span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusText}</span>
     <div class="timestamp">${data?.ts || spool.id}</div>
