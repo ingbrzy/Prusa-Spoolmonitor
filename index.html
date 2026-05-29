@@ -481,7 +481,8 @@ async function refreshData() {
     }
 
     document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i)).join('');
-    document.getElementById('row-xl').innerHTML = XLS_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
+    // OPRAVENÉ NA XL_SPOOLS:
+    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
     document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10)).join('');
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
