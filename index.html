@@ -420,6 +420,20 @@ function renderCard(spool, data, index) {
   const material = isEmpty ? "-" : (data.material || "Neznámy");
   const color = isEmpty ? "transparent" : `#${data.color}`;
   
+  // LOGIKA PRE RELATÍVNY ČAS
+  let timeText = spool.id;
+  if (hasData && data.staleMinutes !== undefined && data.staleMinutes !== null) {
+    const m = data.staleMinutes;
+    if (m === 0) timeText = "práve teraz";
+    else if (m < 60) timeText = `pred ${m} min`;
+    else if (m < 1440) timeText = `pred ${Math.floor(m/60)} hod`;
+    else timeText = `pred ${Math.floor(m/1440)} dňami`;
+  } else if (hasData && data.ts) {
+    timeText = data.ts; // Záloha
+  } else {
+    timeText = "-";
+  }
+
   const typeClass = 'type-' + spool.type.toLowerCase();
   const animClass = isInitialLoad ? ' animate-pop' : '';
   const alertClass = isAlert ? ' alert-pulse' : '';
@@ -444,7 +458,7 @@ function renderCard(spool, data, index) {
     </div>
     <div class="stats-container">${statsHtml}</div>
     <span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusText}</span>
-    <div class="timestamp">${data?.ts || spool.id}</div>
+    <div class="timestamp">${timeText}</div>
   </div>`;
 }
 
@@ -467,7 +481,7 @@ async function refreshData() {
     }
 
     document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i)).join('');
-    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
+    document.getElementById('row-xl').innerHTML = XLS_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
     document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10)).join('');
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
