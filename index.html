@@ -468,24 +468,36 @@ async function refreshData() {
   try {
     const res = await fetch(URL + '?action=getData');
     const json = await res.json();
+    
+    // Teraz pracujeme s json.spools, ktoré nám posiela tvoj Apps Script
     const map = {};
-    json.spools.forEach(s => map[s.id] = s);
+    if (json.spools && Array.isArray(json.spools)) {
+      json.spools.forEach(s => map[s.id] = s);
+    }
 
+    // Zdieľanie senzorov pre XL a XL2
     if (map['spool-XL05']) {
       ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
-        if (map[id]) { map[id].temp = map['spool-XL05'].temp; map[id].hum = map['spool-XL05'].hum; }
+        if (map[id]) { 
+          map[id].temp = map['spool-XL05'].temp; 
+          map[id].hum = map['spool-XL05'].hum; 
+        }
       });
     }
     if (map['spool-XL2-01']) {
-      if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
+      if (map['spool-XL2-02']) { 
+        map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; 
+        map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; 
+      }
     }
 
+    // Vykreslenie kariet
     document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i)).join('');
-    // OPRAVENÉ NA XL_SPOOLS:
     document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
     document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10)).join('');
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
+    
     if (isInitialLoad) {
       setTimeout(() => {
         document.getElementById('loadingOverlay').classList.add('hidden');
@@ -493,7 +505,7 @@ async function refreshData() {
       }, 800);
     }
   } catch (e) {
-    console.error(e);
+    console.error("Chyba pri načítaní:", e);
     document.getElementById('lastUpdate').textContent = 'Chyba pripojenia';
   }
   document.getElementById('refreshDot').style.background = '#4caf50';
