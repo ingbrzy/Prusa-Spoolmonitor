@@ -549,10 +549,23 @@ async function refreshData() {
       fetch(URL + '?action=getPrinterStatus')
     ]);
 
-    // Spracuj cievky
-    const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : { spools: [] };
+// Spracuj cievky
+    const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : {};
     const map = {};
-    (json.spools || []).forEach(s => map[s.id] = s);
+    
+    // Keďže JSON je objekt (nie pole), prejdeme jeho kľúče
+    for (const [id, data] of Object.entries(json)) {
+      if (data && typeof data === 'object') {
+        map[id] = {
+          ...data,
+          // JSON posiela váhu a dĺžku ako stringy, meníme ich na čísla
+          weight: parseFloat(data.weight) || 0,
+          length: parseFloat(data.length) || 0,
+          // Priradíme timestamp do premennej 'ts', ktorú hľadá tvoj HTML template
+          ts: data.timestamp ? new Date(data.timestamp).toLocaleTimeString('sk') : '-'
+        };
+      }
+    }
 
     if (map['spool-XL05']) {
       ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
