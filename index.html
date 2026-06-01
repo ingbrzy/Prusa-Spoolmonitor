@@ -170,6 +170,59 @@
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+  /* PRINTER STATUS BADGE (hore vpravo na karte) */
+  .card-header { position: relative; }
+  .printer-status {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .ps-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .ps-printing  { background: #e8f5e9; color: #2e7d32; }
+  .ps-paused    { background: #fff9c4; color: #f9a825; }
+  .ps-finished  { background: #e3f2fd; color: #1565c0; }
+  .ps-idle      { background: #f5f5f5; color: #9e9e9e; }
+  .ps-ready     { background: #f5f5f5; color: #9e9e9e; }
+  .ps-error     { background: #ffcdd2; color: #c62828; }
+  .ps-attention { background: #fff3e0; color: #e65100; }
+  .ps-offline   { background: #eeeeee; color: #bdbdbd; }
+  .ps-unknown   { background: #eeeeee; color: #bdbdbd; }
+
+  body.dark-theme .ps-printing  { background: #1b3a1f; color: #81c784; }
+  body.dark-theme .ps-paused    { background: #3a3000; color: #fff176; }
+  body.dark-theme .ps-finished  { background: #0d2137; color: #64b5f6; }
+  body.dark-theme .ps-idle      { background: #2a2a2a; color: #757575; }
+  body.dark-theme .ps-ready     { background: #2a2a2a; color: #757575; }
+  body.dark-theme .ps-error     { background: #3b0f0f; color: #ef9a9a; }
+  body.dark-theme .ps-attention { background: #3a1f00; color: #ffcc80; }
+  body.dark-theme .ps-offline   { background: #222; color: #555; }
+  body.dark-theme .ps-unknown   { background: #222; color: #555; }
+
+  /* Progress bar pod printer-status ak tlačiareň tlačí */
+  .print-progress-bar {
+    height: 3px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: -6px;
+  }
+  .print-progress-fill {
+    height: 100%;
+    background: #4caf50;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  body.dark-theme .print-progress-bar { background: #333; }
+
   /* LOADING SCREEN */
   .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out, visibility 0.5s; }
   .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -403,7 +456,7 @@ function createGaugeSVG(value, max) {
 }
 
 // ─── CARD RENDERING ────────────────────────────────────────────────────────
-function renderCard(spool, data, index) {
+function renderCard(spool, data, index, printerData) {
   const hasData = !!data;
   const weight = (hasData && data.weight !== null) ? data.weight : 0;
   const isEmpty = !hasData || data.isEmpty || (data.staleMinutes > 120);
@@ -445,8 +498,32 @@ function renderCard(spool, data, index) {
 
   const gaugeVal = isEmpty ? 0 : weight;
 
+  // ── PRINTER STATUS BADGE ──
+  let printerStatusHtml = '';
+  let printProgressHtml = '';
+  if (printerData) {
+    const st = (printerData.state || 'UNKNOWN').toLowerCase();
+    const stLabels = {
+      printing:  'Tlačí',
+      paused:    'Pauza',
+      finished:  'Hotovo',
+      idle:      'Idle',
+      ready:     'Ready',
+      error:     'Chyba',
+      attention: '! Pozor',
+      offline:   'Offline',
+      unknown:   '—',
+    };
+    const label = stLabels[st] || st;
+    printerStatusHtml = `<span class="printer-status ps-${st}"><span class="ps-dot"></span>${label}${printerData.progress != null && st === 'printing' ? ' ' + printerData.progress + '%' : ''}</span>`;
+    if (st === 'printing' && printerData.progress != null) {
+      printProgressHtml = `<div class="print-progress-bar"><div class="print-progress-fill" style="width:${printerData.progress}%"></div></div>`;
+    }
+  }
+
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
-    <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span></div>
+    <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span>${printerStatusHtml}</div>
+    ${printProgressHtml}
     <div class="gauge-container">${createGaugeSVG(gaugeVal, 1000)}
       <div class="gauge-value" style="color:${weight < CONFIG.threshold && !isEmpty ? 'var(--red)' : 'var(--dark)'}">
         <span class="val-text">${weightDisp}</span><span class="val-label">Váha (g)</span>
@@ -466,10 +543,16 @@ function renderCard(spool, data, index) {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
-    const res = await fetch(URL + '?action=getData');
-    const json = await res.json();
+    // Fetch spool data + printer status paralelne
+    const [spoolRes, printerRes] = await Promise.allSettled([
+      fetch(URL + '?action=getData'),
+      fetch(URL + '?action=getPrinterStatus')
+    ]);
+
+    // Spracuj cievky
+    const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : { spools: [] };
     const map = {};
-    json.spools.forEach(s => map[s.id] = s);
+    (json.spools || []).forEach(s => map[s.id] = s);
 
     if (map['spool-XL05']) {
       ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
@@ -480,10 +563,18 @@ async function refreshData() {
       if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
     }
 
-    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i)).join('');
-    // OPRAVENÉ NA XL_SPOOLS:
-    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5)).join('');
-    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10)).join('');
+    // Spracuj tlačiarne
+    const printerMap = {};
+    if (printerRes.status === 'fulfilled') {
+      try {
+        const pJson = await printerRes.value.json();
+        (pJson.printers || []).forEach(p => printerMap[p.printer_id] = p);
+      } catch(e) {}
+    }
+
+    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i, printerMap[s.id])).join('');
+    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5, printerMap[s.id])).join('');
+    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10, printerMap[s.id])).join('');
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
     if (isInitialLoad) {
