@@ -139,9 +139,9 @@
   .card.alert-pulse:not(.animate-pop) { animation: cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .card.animate-pop.alert-pulse { animation: cardPop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, cardPulseAlert 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
 
-.card-header { white-space: nowrap; overflow: hidden; min-height: 24px; display: flex; align-items: center; gap: 10px; transition: gap 0.3s; }
+  .card-header { white-space: nowrap; overflow: hidden; min-height: 24px; display: flex; align-items: center; gap: 10px; transition: gap 0.3s; }
   .printer-type { font-size: 18px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; transition: font-size 0.3s; }
-  .printer-name { font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
+  .printer-name { flex: 1; font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
 
   /* GAUGE */
   .gauge-container { position: relative; width: 100%; aspect-ratio: 2/1.05; }
@@ -187,21 +187,26 @@
     text-transform: uppercase;
   }
   .ps-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  
+  /* FARBY - SVETLÁ TÉMA */
   .ps-printing  { background: #e8f5e9; color: #2e7d32; }
   .ps-paused    { background: #fff9c4; color: #f9a825; }
-  .ps-finished  { background: #e3f2fd; color: #1565c0; }
-  .ps-idle      { background: #f5f5f5; color: #9e9e9e; }
-  .ps-ready     { background: #f5f5f5; color: #9e9e9e; }
+  .ps-finished  { background: #e8f5e9; color: #2e7d32; } /* ZELENÁ */
+  .ps-idle      { background: #fff3e0; color: #e65100; } /* ORANŽOVÁ */
+  .ps-ready     { background: #e8f5e9; color: #2e7d32; } /* ZELENÁ */
+  .ps-stopped   { background: #ffcdd2; color: #c62828; } /* ČERVENÁ */
   .ps-error     { background: #ffcdd2; color: #c62828; }
   .ps-attention { background: #fff3e0; color: #e65100; }
   .ps-offline   { background: #eeeeee; color: #bdbdbd; }
   .ps-unknown   { background: #eeeeee; color: #bdbdbd; }
 
+  /* FARBY - TMAVÁ TÉMA */
   body.dark-theme .ps-printing  { background: #1b3a1f; color: #81c784; }
   body.dark-theme .ps-paused    { background: #3a3000; color: #fff176; }
-  body.dark-theme .ps-finished  { background: #0d2137; color: #64b5f6; }
-  body.dark-theme .ps-idle      { background: #2a2a2a; color: #757575; }
-  body.dark-theme .ps-ready     { background: #2a2a2a; color: #757575; }
+  body.dark-theme .ps-finished  { background: #1b3a1f; color: #81c784; } /* ZELENÁ */
+  body.dark-theme .ps-idle      { background: #3a1f00; color: #ffcc80; } /* ORANŽOVÁ */
+  body.dark-theme .ps-ready     { background: #1b3a1f; color: #81c784; } /* ZELENÁ */
+  body.dark-theme .ps-stopped   { background: #3b0f0f; color: #ef9a9a; } /* ČERVENÁ */
   body.dark-theme .ps-error     { background: #3b0f0f; color: #ef9a9a; }
   body.dark-theme .ps-attention { background: #3a1f00; color: #ffcc80; }
   body.dark-theme .ps-offline   { background: #222; color: #555; }
@@ -315,7 +320,6 @@
       <span class="logo-light">MONITOR</span>
     </div>
     <img src="loading-wheel-4s.svg" class="prusa-loader" alt="Načítavam...">
-
   </div>
 </div>
 
@@ -509,13 +513,20 @@ function renderCard(spool, data, index, printerData) {
       finished:  'Hotovo',
       idle:      'Idle',
       ready:     'Ready',
+      stopped:   'Zastavená',
       error:     'Chyba',
       attention: '! Pozor',
       offline:   'Offline',
       unknown:   '—',
     };
+    
     const label = stLabels[st] || st;
-    printerStatusHtml = `<span class="printer-status ps-${st}"><span class="ps-dot"></span>${label}${printerData.progress != null && st === 'printing' ? ' ' + printerData.progress + '%' : ''}</span>`;
+    
+    // Pridanie progressu do štítku, ak je stav printing a progress je dostupný
+    const progressText = (st === 'printing' && printerData.progress != null) ? ` ${printerData.progress}%` : '';
+    
+    printerStatusHtml = `<span class="printer-status ps-${st}"><span class="ps-dot"></span>${label}${progressText}</span>`;
+    
     if (st === 'printing' && printerData.progress != null) {
       printProgressHtml = `<div class="print-progress-bar"><div class="print-progress-fill" style="width:${printerData.progress}%"></div></div>`;
     }
@@ -549,19 +560,17 @@ async function refreshData() {
       fetch(URL + '?action=getPrinterStatus')
     ]);
 
-// Spracuj cievky
+    // Spracuj cievky
     const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : {};
     const map = {};
     
-    // Keďže JSON je objekt (nie pole), prejdeme jeho kľúče
+    // Prechádzame kľúče JSON objektu, keďže to nie je pole
     for (const [id, data] of Object.entries(json)) {
       if (data && typeof data === 'object') {
         map[id] = {
           ...data,
-          // JSON posiela váhu a dĺžku ako stringy, meníme ich na čísla
           weight: parseFloat(data.weight) || 0,
           length: parseFloat(data.length) || 0,
-          // Priradíme timestamp do premennej 'ts', ktorú hľadá tvoj HTML template
           ts: data.timestamp ? new Date(data.timestamp).toLocaleTimeString('sk') : '-'
         };
       }
