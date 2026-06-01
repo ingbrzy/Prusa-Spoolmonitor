@@ -273,22 +273,48 @@
   /* ───────────────────────────────────────────────────────── */
   /* KOMPAKTNÝ REŽIM (COMPACT MODE)                            */
   /* ───────────────────────────────────────────────────────── */
-  body.compact-mode .dashboard { padding: 10px 14px; }
+/* KOMPAKTNÝ REŽIM (COMPACT MODE) - OPTIMALIZÁCIA PRE FULL HD */
+  
+  /* Zmenšenie hlavičky a horného panela */
+  body.compact-mode .header { padding: 6px 14px; min-height: unset; }
+  body.compact-mode .mas-img, body.compact-mode .prusa-img { height: 26px; }
+  body.compact-mode .header-logo-text .logo-bold { font-size: 18px; }
+  body.compact-mode .header-logo-text .logo-light { font-size: 15px; }
+  body.compact-mode .controls { padding: 6px 14px 0; }
+  body.compact-mode .btn-icon { padding: 4px 8px; font-size: 10px; }
+
+  /* Mriežka a samotné karty */
+  body.compact-mode .dashboard { padding: 8px 14px; }
   body.compact-mode .section-row { gap: 8px; margin-bottom: 8px; }
-  body.compact-mode .card { padding: 10px 12px 10px; gap: 6px; }
-  body.compact-mode .card-header { min-height: 18px; gap: 6px; }
-  body.compact-mode .printer-type { font-size: 14px; }
-  body.compact-mode .printer-name { font-size: 12px; }
-  body.compact-mode .gauge-value { bottom: 6px; }
-  body.compact-mode .val-text { font-size: 16px; }
+  body.compact-mode .card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
+  body.compact-mode .card-header { min-height: 16px; gap: 4px; }
+  body.compact-mode .printer-type { font-size: 13px; }
+  body.compact-mode .printer-name { font-size: 11px; }
+  
+  /* Zúženie merača - automaticky sa tým zníži aj jeho výška */
+  body.compact-mode .gauge-container { width: 80%; margin: 0 auto; }
+  body.compact-mode .gauge-value { bottom: 4px; }
+  body.compact-mode .val-text { font-size: 15px; }
   body.compact-mode .val-label { font-size: 8px; }
-  body.compact-mode .material-row { min-height: 16px; gap: 5px; }
-  body.compact-mode .color-dot { width: 14px; height: 14px; }
-  body.compact-mode .material-name { font-size: 11px; }
-  body.compact-mode .stat-label { font-size: 8px; }
-  body.compact-mode .stat-value { font-size: 14px; }
-  body.compact-mode .status-badge { font-size: 9px; padding: 2px 7px; }
+  
+  /* Detaily filamentu a štatistiky */
+  body.compact-mode .material-row { min-height: 14px; gap: 4px; }
+  body.compact-mode .color-dot { width: 12px; height: 12px; border-width: 1px; }
+  body.compact-mode .material-name { font-size: 10px; }
+  
+  body.compact-mode .stats-container { gap: 2px; }
+  body.compact-mode .stat-label { font-size: 7px; }
+  body.compact-mode .stat-value { font-size: 13px; }
+  
+  /* Spodné štítky a čas */
+  body.compact-mode .status-badge { font-size: 8px; padding: 2px 6px; }
   body.compact-mode .timestamp { font-size: 8px; margin-top: 0; }
+  
+  /* Pravý horný roh (Prusa Status) */
+  body.compact-mode .printer-status-top-right { top: 6px; right: 6px; gap: 0px; }
+  body.compact-mode .ps-state { font-size: 9px; }
+  body.compact-mode .ps-job { font-size: 8px; }
+  body.compact-mode .ps-progress { font-size: 9px; }
 
   /* RESPOSIVE */
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
