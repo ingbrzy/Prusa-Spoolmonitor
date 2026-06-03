@@ -13,7 +13,9 @@
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22%23222%22 stroke=%22%23444%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2250%22 r=%2238%22 fill=%22%23E8500A%22/><circle cx=%2250%22 cy=%2250%22 r=%2218%22 fill=%22%23222%22 stroke=%22%23444%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2250%22 r=%2210%22 fill=%22black%22/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+<style>
   :root {
     --orange: #E8500A;
     --orange-light: #F4651F;
@@ -95,14 +97,11 @@
   .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; transition: padding 0.3s; }
   .section-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; transition: gap 0.3s, margin 0.3s; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* ROZLOŽENIE MRIEŽKY (GRID 2x6)                             */
-  /* ───────────────────────────────────────────────────────── */
+  /* ROZLOŽENIE MRIEŽKY (GRID 2x6) */
   body.grid-2x6 .dashboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
   body.grid-2x6 .section-row { display: contents; }
   body.compact-mode.grid-2x6 .dashboard { gap: 8px; }
 
-  /* Responzívne prispôsobenie pre 2x6 mriežku */
   @media (max-width: 1400px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(5, 1fr); } }
   @media (max-width: 1200px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(3, 1fr); } }
@@ -115,7 +114,7 @@
   @keyframes alertBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
   @keyframes cardPulseAlert { 0%, 100% { border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); } 50% { border-color: var(--red); box-shadow: 0 0 16px var(--pulse-shadow); } }
 
-  /* CARDS */
+  /* CARDS & DRAG/DROP STYLES */
   .card {
     background: var(--card-bg);
     border-radius: 10px;
@@ -126,8 +125,14 @@
     flex-direction: column;
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s, padding 0.3s, gap 0.3s;
+    cursor: grab; /* Indikátor pre ťahanie */
   }
   .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .card:active { cursor: grabbing; }
+
+  /* Tieto triedy pridáva SortableJS pri ťahaní */
+  .sortable-ghost { opacity: 0.4; border: 2px dashed var(--orange) !important; background: var(--bg) !important; }
+  .sortable-drag { opacity: 1 !important; transform: scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; z-index: 999; }
 
   /* PRINTER TYPES COLORS */
   .card.type-mk3s { --card-bg: #f0f7ff; --border: #cce4ff; }
@@ -158,19 +163,19 @@
   .printer-name { flex: 1; font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
 
   /* GAUGE */
-  .gauge-container { position: relative; width: 100%; aspect-ratio: 2/1.05; }
+  .gauge-container { position: relative; width: 100%; aspect-ratio: 2/1.05; pointer-events: none; }
   .gauge-svg { width: 100%; height: 100%; }
   .gauge-value { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; transition: bottom 0.3s; }
   .val-text { font-size: 22px; font-weight: 700; line-height: 1; transition: font-size 0.3s; }
   .val-label { font-size: 9px; color: var(--text-light); font-weight: 500; transition: font-size 0.3s; }
 
   /* STATS */
-  .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; transition: gap 0.3s; }
+  .material-row { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 22px; transition: gap 0.3s; pointer-events: none; }
   .color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.12); flex-shrink: 0; transition: width 0.3s, height 0.3s; }
   body.dark-theme .color-dot { border: 2px solid rgba(255,255,255,0.15); }
   .material-name { font-size: 13px; font-weight: 500; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.3s; }
   .material-name.empty { color: var(--text-light); }
-  .stats-container { display: flex; justify-content: space-evenly; align-items: center; width: 100%; }
+  .stats-container { display: flex; justify-content: space-evenly; align-items: center; width: 100%; pointer-events: none; }
   .stat-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
   .stat-label { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; transition: font-size 0.3s; }
   .stat-value { font-size: 19px; font-weight: 700; color: var(--dark); line-height: 1.1; transition: font-size 0.3s; }
@@ -178,7 +183,7 @@
   .timestamp { font-size: 10px; color: var(--text-light); margin-top: 2px; text-align: center; transition: font-size 0.3s; }
 
   /* STATUS BADGE */
-  .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; align-self: center; transition: font-size 0.3s, padding 0.3s; }
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; align-self: center; transition: font-size 0.3s, padding 0.3s; pointer-events: none; }
   .status-ok { background: #e8f5e9; color: #2e7d32; }
   .status-low { background: #fff3e0; color: #e65100; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
@@ -240,9 +245,9 @@
   .loading-text { margin-top: 15px; font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--text-light); text-transform: uppercase; }
 
   /* CONTROLS */
-  .controls { padding: 12px 24px 0; display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; }
+  .controls { padding: 12px 24px 0; display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; flex-wrap: wrap; gap: 10px; }
   .last-update { font-size: 12px; color: var(--text-light); }
-  .btn-icon { background: var(--card-bg); border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: 'Roboto', sans-serif; }
+  .btn-icon { background: var(--card-bg); border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: 'Roboto', sans-serif; white-space: nowrap; }
   .btn-icon:hover { background: var(--orange); color: white; border-color: var(--orange); }
   .refresh-indicator { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
@@ -273,9 +278,7 @@
   .card.empty-holder .printer-type { color: var(--text-light) !important; }
   body.dark-theme .card.empty-holder { opacity: 0.6; --card-bg: #181818; --border: #333333; }
 
-  /* ───────────────────────────────────────────────────────── */
-  /* KOMPAKTNÝ REŽIM (COMPACT MODE)                            */
-  /* ───────────────────────────────────────────────────────── */
+  /* COMPACT MODE */
   body.compact-mode .header { padding: 6px 14px; min-height: unset; }
   body.compact-mode .mas-img, body.compact-mode .prusa-img { height: 26px; }
   body.compact-mode .header-logo-text .logo-bold { font-size: 18px; }
@@ -311,7 +314,6 @@
   body.compact-mode .ps-job { font-size: 8px; }
   body.compact-mode .ps-progress { font-size: 9px; }
 
-  /* RESPOSIVE pre pôvodný 3x5 layout */
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 768px) { 
@@ -408,6 +410,7 @@
     <span class="last-update" id="lastUpdate">Čakám na dáta...</span>
   </div>
   <div style="display:flex; gap:8px;">
+    <button class="btn-icon" onclick="resetLayout()" title="Obnoviť predvolené rozloženie cievok">⟲ RESET</button>
     <button class="btn-icon" onclick="refreshData()">↻ OBNOVIŤ</button>
     <button class="btn-icon" onclick="openConfig()">⚙ NASTAVENIA</button>
   </div>
@@ -438,38 +441,37 @@ let CONFIG = {
 };
 let refreshTimer = null;
 let isInitialLoad = true;
+let isDragging = false; // Detekcia, či užívateľ práve hýbe kartou
 
-// ─── INIT THEME & MODES ────────────────────────────────────────────────────
-if (CONFIG.darkMode) {
-  document.body.classList.add('dark-theme');
-  document.getElementById('cfgDarkMode').checked = true;
-}
-if (CONFIG.compactMode) {
-  document.body.classList.add('compact-mode');
-  document.getElementById('cfgCompactMode').checked = true;
-}
-if (CONFIG.grid === '2x6') {
-  document.body.classList.add('grid-2x6');
-}
+// Inicializácia Tém
+if (CONFIG.darkMode) { document.body.classList.add('dark-theme'); document.getElementById('cfgDarkMode').checked = true; }
+if (CONFIG.compactMode) { document.body.classList.add('compact-mode'); document.getElementById('cfgCompactMode').checked = true; }
+if (CONFIG.grid === '2x6') { document.body.classList.add('grid-2x6'); document.getElementById('cfgGrid').value = '2x6'; }
 
-const MK3S_SPOOLS = [
-  { id: 'spool-01', label: 'PRUSA 01', type: 'MK3S' },
-  { id: 'spool-02', label: 'PRUSA 02', type: 'MK3S' },
-  { id: 'spool-03', label: 'PRUSA 03', type: 'MK3S' },
-  { id: 'spool-04', label: 'PRUSA 04', type: 'MK4S' },
-  { id: 'spool-05', label: 'PRUSA 05', type: 'MK4S' }
-];
-const XL_SPOOLS = [
-  { id: 'spool-XL01', label: 'TOOL 01', type: 'XL' },
-  { id: 'spool-XL02', label: 'TOOL 02', type: 'XL' },
-  { id: 'spool-XL03', label: 'TOOL 03', type: 'XL' },
-  { id: 'spool-XL04', label: 'TOOL 04', type: 'XL' },
-  { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' }
-];
-const XL2_SPOOLS = [
-  { id: 'spool-XL2-01', label: 'TOOL 01', type: 'XL2' },
-  { id: 'spool-XL2-02', label: 'TOOL 02', type: 'XL2' }
-];
+// ─── DEFINÍCIA CIEVOK A ICH PREDVOLENÉ ROZLOŽENIE ──────────────────────────
+const ALL_SPOOLS = {
+  'spool-01': { id: 'spool-01', label: 'PRUSA 01', type: 'MK3S' },
+  'spool-02': { id: 'spool-02', label: 'PRUSA 02', type: 'MK3S' },
+  'spool-03': { id: 'spool-03', label: 'PRUSA 03', type: 'MK3S' },
+  'spool-04': { id: 'spool-04', label: 'PRUSA 04', type: 'MK4S' },
+  'spool-05': { id: 'spool-05', label: 'PRUSA 05', type: 'MK4S' },
+  'spool-XL01': { id: 'spool-XL01', label: 'TOOL 01', type: 'XL' },
+  'spool-XL02': { id: 'spool-XL02', label: 'TOOL 02', type: 'XL' },
+  'spool-XL03': { id: 'spool-XL03', label: 'TOOL 03', type: 'XL' },
+  'spool-XL04': { id: 'spool-XL04', label: 'TOOL 04', type: 'XL' },
+  'spool-XL05': { id: 'spool-XL05', label: 'TOOL 05', type: 'XL' },
+  'spool-XL2-01': { id: 'spool-XL2-01', label: 'TOOL 01', type: 'XL2' },
+  'spool-XL2-02': { id: 'spool-XL2-02', label: 'TOOL 02', type: 'XL2' }
+};
+
+const DEFAULT_LAYOUT = {
+  'row-mk3s': ['spool-01', 'spool-02', 'spool-03', 'spool-04', 'spool-05'],
+  'row-xl': ['spool-XL01', 'spool-XL02', 'spool-XL03', 'spool-XL04', 'spool-XL05'],
+  'row-xl2': ['spool-XL2-01', 'spool-XL2-02']
+};
+
+// Načítanie uloženého rozloženia alebo použitie predvoleného
+let currentLayout = JSON.parse(localStorage.getItem('layoutOrder')) || JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
 
 // ─── GAUGE DRAWING ─────────────────────────────────────────────────────────
 function createGaugeSVG(value, max) {
@@ -510,19 +512,15 @@ function renderCard(spool, data, index, printerData) {
   const material = isEmpty ? "-" : (data.material || "Neznámy");
   const color = isEmpty ? "transparent" : `#${data.color}`;
   
-// LOGIKA PRE RELATÍVNY ČAS
   let timeText = "-";
   if (hasData && data.timestamp) {
     const diffMs = new Date() - new Date(data.timestamp);
     const m = Math.max(0, Math.floor(diffMs / 60000));
-    
     if (m === 0) timeText = "práve teraz";
     else if (m < 60) timeText = `pred ${m} min`;
     else if (m < 1440) timeText = `pred ${Math.floor(m/60)} hod`;
     else timeText = `pred ${Math.floor(m/1440)} dňami`;
-  } else if (hasData && data.ts) {
-    timeText = data.ts;
-  }
+  } else if (hasData && data.ts) { timeText = data.ts; }
 
   const typeClass = 'type-' + spool.type.toLowerCase();
   const animClass = isInitialLoad ? ' animate-pop' : '';
@@ -535,35 +533,22 @@ function renderCard(spool, data, index, printerData) {
 
   const gaugeVal = isEmpty ? 0 : weight;
 
-  // ── PRINTER STATUS BADGE ──
   let printerStatusHtml = '';
   let printProgressHtml = '';
   if (printerData) {
     const st = (printerData.state || 'UNKNOWN').toLowerCase();
-    const stLabels = {
-      printing:  'Tlačí',
-      paused:    'Pauza',
-      finished:  'Hotovo',
-      idle:      'Idle',
-      ready:     'Ready',
-      stopped:   'Zastavená',
-      error:     'Chyba',
-      attention: '! Pozor',
-      offline:   'Offline',
-      unknown:   '—',
-    };
-    
+    const stLabels = { printing: 'Tlačí', paused: 'Pauza', finished: 'Hotovo', idle: 'Idle', ready: 'Ready', stopped: 'Zastavená', error: 'Chyba', attention: '! Pozor', offline: 'Offline', unknown: '—' };
     const label = stLabels[st] || st;
     const progressText = (st === 'printing' && printerData.progress != null) ? ` ${printerData.progress}%` : '';
     
     printerStatusHtml = `<span class="printer-status ps-${st}"><span class="ps-dot"></span>${label}${progressText}</span>`;
-    
     if (st === 'printing' && printerData.progress != null) {
       printProgressHtml = `<div class="print-progress-bar"><div class="print-progress-fill" style="width:${printerData.progress}%"></div></div>`;
     }
   }
 
-  return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" ${animStyle}>
+  // Pridaný atribút data-id dôležitý pre Sortable.js
+  return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" data-id="${spool.id}" ${animStyle}>
     <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span>${printerStatusHtml}</div>
     ${printProgressHtml}
     <div class="gauge-container">${createGaugeSVG(gaugeVal, 1000)}
@@ -581,8 +566,44 @@ function renderCard(spool, data, index, printerData) {
   </div>`;
 }
 
+// ─── DRAG & DROP INITIALIZATION ────────────────────────────────────────────
+function initSortable() {
+  const rows = ['row-mk3s', 'row-xl', 'row-xl2'];
+  rows.forEach(rowId => {
+    new Sortable(document.getElementById(rowId), {
+      group: 'spools', // Zdiela rovnakú skupinu, takže môžete ťahať z riadku do riadku
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      dragClass: 'sortable-drag',
+      onStart: function () {
+        isDragging = true; // Zablokuje obnovu dát počas ťahania, aby sa predišlo vizuálnym chybám
+      },
+      onEnd: function () {
+        isDragging = false;
+        saveLayoutOrder();
+      }
+    });
+  });
+}
+
+function saveLayoutOrder() {
+  currentLayout['row-mk3s'] = Array.from(document.getElementById('row-mk3s').children).map(c => c.dataset.id);
+  currentLayout['row-xl'] = Array.from(document.getElementById('row-xl').children).map(c => c.dataset.id);
+  currentLayout['row-xl2'] = Array.from(document.getElementById('row-xl2').children).map(c => c.dataset.id);
+  localStorage.setItem('layoutOrder', JSON.stringify(currentLayout));
+}
+
+function resetLayout() {
+  if(confirm("Chcete vrátiť poradie cievok na predvolené?")) {
+    localStorage.removeItem('layoutOrder');
+    location.reload();
+  }
+}
+
 // ─── DATA FETCHING ─────────────────────────────────────────────────────────
 async function refreshData() {
+  if (isDragging) return; // Zabezpečenie: Nemeníme HTML kým užívateľ s kartou hybe
+
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
     const [spoolRes, printerRes] = await Promise.allSettled([
@@ -595,12 +616,7 @@ async function refreshData() {
     
     for (const [id, data] of Object.entries(json)) {
       if (data && typeof data === 'object') {
-        map[id] = {
-          ...data,
-          weight: parseFloat(data.weight) || 0,
-          length: parseFloat(data.length) || 0,
-          ts: data.timestamp ? new Date(data.timestamp).toLocaleTimeString('sk') : '-'
-        };
+        map[id] = { ...data, weight: parseFloat(data.weight) || 0, length: parseFloat(data.length) || 0, ts: data.timestamp ? new Date(data.timestamp).toLocaleTimeString('sk') : '-' };
       }
     }
 
@@ -621,15 +637,19 @@ async function refreshData() {
       } catch(e) {}
     }
 
-    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i, printerMap[s.id])).join('');
-    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5, printerMap[s.id])).join('');
-    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10, printerMap[s.id])).join('');
+    // VYKRESLENIE PODĽA ULOŽENÉHO (ALEBO PREDVOLENÉHO) PORADIA
+    ['row-mk3s', 'row-xl', 'row-xl2'].forEach(rowId => {
+      document.getElementById(rowId).innerHTML = currentLayout[rowId].map((spoolId, i) => {
+        return ALL_SPOOLS[spoolId] ? renderCard(ALL_SPOOLS[spoolId], map[spoolId], i, printerMap[spoolId]) : '';
+      }).join('');
+    });
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
     if (isInitialLoad) {
       setTimeout(() => {
         document.getElementById('loadingOverlay').classList.add('hidden');
         isInitialLoad = false;
+        initSortable(); // Inicializujeme Drag & Drop po prvom načítaní dát a zobrazení
       }, 800);
     }
   } catch (e) {
@@ -664,11 +684,8 @@ function toggleCompactMode() {
 function toggleGrid() {
   CONFIG.grid = document.getElementById('cfgGrid').value;
   localStorage.setItem('grid', CONFIG.grid);
-  if (CONFIG.grid === '2x6') {
-    document.body.classList.add('grid-2x6');
-  } else {
-    document.body.classList.remove('grid-2x6');
-  }
+  if (CONFIG.grid === '2x6') { document.body.classList.add('grid-2x6'); } 
+  else { document.body.classList.remove('grid-2x6'); }
 }
 function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
