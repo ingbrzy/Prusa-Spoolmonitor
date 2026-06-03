@@ -580,47 +580,26 @@ function renderCard(spool, data, index, printerData) {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
-    // 1. Fetch oboch endpointov naraz
-    const [spoolRes, printerRes] = await Promise.all([
+    // Fetch spool data + printer status paralelne
+    const [spoolRes, printerRes] = await Promise.allSettled([
       fetch(URL + '?action=getData'),
       fetch(URL + '?action=getPrinterStatus')
     ]);
 
-    const spoolJson = await spoolRes.json();
-    const printerJson = await printerRes.json();
-
+    // Spracuj cievky
+    const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : {};
     const map = {};
-    const now = new Date();
-
-    // 2. Namapovanie dát cievok a VÝPOČET ČASU
-    if (spoolJson && typeof spoolJson === 'object') {
-      let spoolsArray = [];
-      if (spoolJson.spools && Array.isArray(spoolJson.spools)) {
-        spoolsArray = spoolJson.spools;
-      } else {
-        spoolsArray = Object.keys(spoolJson).map(key => ({ id: key, ...spoolJson[key] }));
+    
+    // Prechádzame kľúče JSON objektu, keďže to nie je pole
+    for (const [id, data] of Object.entries(json)) {
+      if (data && typeof data === 'object') {
+        map[id] = {
+          ...data,
+          weight: parseFloat(data.weight) || 0,
+          length: parseFloat(data.length) || 0,
+          ts: data.timestamp ? new Date(data.timestamp).toLocaleTimeString('sk') : '-'
+        };
       }
-      
-      spoolsArray.forEach(s => {
-        if (s.staleMinutes === undefined || s.staleMinutes === null) {
-          const timeStr = s.timestamp || s.ts;
-          if (timeStr) {
-            const tsDate = new Date(timeStr);
-            if (!isNaN(tsDate)) {
-              s.staleMinutes = Math.max(0, Math.floor((now - tsDate) / 60000));
-            } else {
-              const parts = timeStr.toString().split(':');
-              if (parts.length >= 2) {
-                const tsParts = new Date();
-                tsParts.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2] || 0), 0);
-                if (tsParts > now) tsParts.setDate(tsParts.getDate() - 1);
-                s.staleMinutes = Math.max(0, Math.floor((now - tsParts) / 60000));
-              }
-            }
-          }
-        }
-        map[s.id] = s;
-      });
     }
 
     if (map['spool-XL05']) {
@@ -632,25 +611,18 @@ async function refreshData() {
       if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
     }
 
-    // 3. Robustné namapovanie dát z tlačiarní (zoberie objekt aj čisté pole)
+    // Spracuj tlačiarne
     const printerMap = {};
-    let printersArray = [];
-    if (Array.isArray(printerJson)) {
-      printersArray = printerJson; // Ak backend pošle čisté pole [...]
-    } else if (printerJson && printerJson.printers && Array.isArray(printerJson.printers)) {
-      printersArray = printerJson.printers; // Ak backend pošle { printers: [...] }
+    if (printerRes.status === 'fulfilled') {
+      try {
+        const pJson = await printerRes.value.json();
+        (pJson.printers || []).forEach(p => printerMap[p.printer_id] = p);
+      } catch(e) {}
     }
-    
-    printersArray.forEach(p => {
-      // Skúsime printer_id alebo len id
-      const pId = p.printer_id || p.id;
-      if (pId) printerMap[pId] = p;
-    });
 
-    // 4. Vykreslenie kariet
-    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], printerMap[s.id], i)).join('');
-    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], printerMap[s.id], i+5)).join('');
-    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], printerMap[s.id], i+10)).join('');
+    document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], i, printerMap[s.id])).join('');
+    document.getElementById('row-xl').innerHTML = XL_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+5, printerMap[s.id])).join('');
+    document.getElementById('row-xl2').innerHTML = XL2_SPOOLS.map((s,i) => renderCard(s, map[s.id], i+10, printerMap[s.id])).join('');
     
     document.getElementById('lastUpdate').textContent = 'Aktualizované: ' + new Date().toLocaleTimeString('sk');
     if (isInitialLoad) {
@@ -660,7 +632,7 @@ async function refreshData() {
       }, 800);
     }
   } catch (e) {
-    console.error("Chyba pri načítaní dát:", e);
+    console.error(e);
     document.getElementById('lastUpdate').textContent = 'Chyba pripojenia';
   }
   document.getElementById('refreshDot').style.background = '#4caf50';
