@@ -580,7 +580,7 @@ function renderCard(spool, data, index, printerData) {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
-    // 1. Fetch oboch endpointov naraz pre maximalnu rychlost
+    // 1. Fetch oboch endpointov naraz
     const [spoolRes, printerRes] = await Promise.all([
       fetch(URL + '?action=getData'),
       fetch(URL + '?action=getPrinterStatus')
@@ -602,21 +602,18 @@ async function refreshData() {
       }
       
       spoolsArray.forEach(s => {
-        // Ak z backendu neprišli minúty, vypočítame si ich z času
         if (s.staleMinutes === undefined || s.staleMinutes === null) {
           const timeStr = s.timestamp || s.ts;
           if (timeStr) {
             const tsDate = new Date(timeStr);
             if (!isNaN(tsDate)) {
-              // Pre štandardný formát času
               s.staleMinutes = Math.max(0, Math.floor((now - tsDate) / 60000));
             } else {
-              // Pre čistý časový formát z Google Sheetu, napr. "9:08:14"
               const parts = timeStr.toString().split(':');
               if (parts.length >= 2) {
                 const tsParts = new Date();
                 tsParts.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2] || 0), 0);
-                if (tsParts > now) tsParts.setDate(tsParts.getDate() - 1); // Ak to bolo včera
+                if (tsParts > now) tsParts.setDate(tsParts.getDate() - 1);
                 s.staleMinutes = Math.max(0, Math.floor((now - tsParts) / 60000));
               }
             }
@@ -626,7 +623,6 @@ async function refreshData() {
       });
     }
 
-    // Zdieľanie senzorov pre XL a XL2
     if (map['spool-XL05']) {
       ['spool-XL01','spool-XL02','spool-XL03','spool-XL04'].forEach(id => {
         if (map[id]) { map[id].temp = map['spool-XL05'].temp; map[id].hum = map['spool-XL05'].hum; }
@@ -636,11 +632,20 @@ async function refreshData() {
       if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
     }
 
-    // 3. Namapovanie dát z tlačiarní
+    // 3. Robustné namapovanie dát z tlačiarní (zoberie objekt aj čisté pole)
     const printerMap = {};
-    if (printerJson && printerJson.printers && Array.isArray(printerJson.printers)) {
-      printerJson.printers.forEach(p => printerMap[p.printer_id] = p);
+    let printersArray = [];
+    if (Array.isArray(printerJson)) {
+      printersArray = printerJson; // Ak backend pošle čisté pole [...]
+    } else if (printerJson && printerJson.printers && Array.isArray(printerJson.printers)) {
+      printersArray = printerJson.printers; // Ak backend pošle { printers: [...] }
     }
+    
+    printersArray.forEach(p => {
+      // Skúsime printer_id alebo len id
+      const pId = p.printer_id || p.id;
+      if (pId) printerMap[pId] = p;
+    });
 
     // 4. Vykreslenie kariet
     document.getElementById('row-mk3s').innerHTML = MK3S_SPOOLS.map((s,i) => renderCard(s, map[s.id], printerMap[s.id], i)).join('');
