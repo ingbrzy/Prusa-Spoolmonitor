@@ -126,6 +126,7 @@
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s, padding 0.3s, gap 0.3s;
     cursor: grab;
+    position: relative; /* Dôležité pre absolútne pozicovanie progress baru */
   }
   .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
   .card:active { cursor: grabbing; }
@@ -230,8 +231,18 @@
   body.dark-theme .ps-offline   { background: #222; color: #555; }
   body.dark-theme .ps-unknown   { background: #222; color: #555; }
 
-  /* Progress bar */
-  .print-progress-bar { height: 3px; background: #e0e0e0; border-radius: 2px; overflow: hidden; margin-top: -6px; }
+  /* Progress bar (OPRAVENÉ POZICOVANIE) */
+  .print-progress-bar { 
+    position: absolute; 
+    top: 44px; /* Vycentruje bar do medzery medzi headerom a budíkom */
+    left: 18px; 
+    right: 18px; 
+    height: 3px; 
+    background: #e0e0e0; 
+    border-radius: 2px; 
+    overflow: hidden; 
+    z-index: 10;
+  }
   .print-progress-fill { height: 100%; background: #4caf50; border-radius: 2px; transition: width 0.6s ease; }
   body.dark-theme .print-progress-bar { background: #333; }
 
@@ -291,6 +302,8 @@
   body.compact-mode .card-header { min-height: 16px; gap: 4px; }
   body.compact-mode .printer-type { font-size: 13px; }
   body.compact-mode .printer-name { font-size: 11px; }
+  
+  body.compact-mode .print-progress-bar { top: 25px; left: 10px; right: 10px; } /* Progress bar v compact mode */
   
   body.compact-mode .gauge-container { width: 80%; margin: 0 auto; }
   body.compact-mode .gauge-value { bottom: 4px; }
