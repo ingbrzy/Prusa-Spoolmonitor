@@ -95,6 +95,20 @@
   .dashboard { padding: 20px 24px; max-width: 1600px; margin: 0 auto; transition: padding 0.3s; }
   .section-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 14px; transition: gap 0.3s, margin 0.3s; }
 
+  /* ───────────────────────────────────────────────────────── */
+  /* ROZLOŽENIE MRIEŽKY (GRID 2x6)                             */
+  /* ───────────────────────────────────────────────────────── */
+  body.grid-2x6 .dashboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  body.grid-2x6 .section-row { display: contents; }
+  body.compact-mode.grid-2x6 .dashboard { gap: 8px; }
+
+  /* Responzívne prispôsobenie pre 2x6 mriežku */
+  @media (max-width: 1400px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(5, 1fr); } }
+  @media (max-width: 1200px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 992px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { body.grid-2x6 .dashboard { grid-template-columns: 1fr; } }
+
   /* ANIMATIONS */
   @keyframes cardPop { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
   @keyframes gaugeFill { 0% { stroke-dashoffset: 232.48; } 100% { stroke-dashoffset: var(--target-offset); } }
@@ -170,7 +184,7 @@
   .status-empty { background: #fce4e4; color: #c62828; border: 1px solid #ef9a9a; animation: alertBlink 2s infinite ease-in-out; animation-delay: var(--delay, 0s); }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  /* PRINTER STATUS BADGE (hore vpravo na karte) */
+  /* PRINTER STATUS BADGE */
   .card-header { position: relative; }
   .printer-status {
     margin-left: auto;
@@ -191,10 +205,10 @@
   /* FARBY - SVETLÁ TÉMA */
   .ps-printing  { background: #e8f5e9; color: #1976d2; }
   .ps-paused    { background: #fff9c4; color: #f9a825; }
-  .ps-finished  { background: #e8f5e9; color: #2e7d32; } /* ZELENÁ */
-  .ps-idle      { background: #fff3e0; color: #e65100; } /* ORANŽOVÁ */
-  .ps-ready     { background: #e8f5e9; color: #2e7d32; } /* ZELENÁ */
-  .ps-stopped   { background: #ffcdd2; color: #c62828; } /* ČERVENÁ */
+  .ps-finished  { background: #e8f5e9; color: #2e7d32; }
+  .ps-idle      { background: #fff3e0; color: #e65100; }
+  .ps-ready     { background: #e8f5e9; color: #2e7d32; }
+  .ps-stopped   { background: #ffcdd2; color: #c62828; }
   .ps-error     { background: #ffcdd2; color: #c62828; }
   .ps-attention { background: #fff3e0; color: #e65100; }
   .ps-offline   { background: #eeeeee; color: #bdbdbd; }
@@ -203,29 +217,18 @@
   /* FARBY - TMAVÁ TÉMA */
   body.dark-theme .ps-printing  { background: #1b3a1f; color: #64b5f6; }
   body.dark-theme .ps-paused    { background: #3a3000; color: #fff176; }
-  body.dark-theme .ps-finished  { background: #1b3a1f; color: #81c784; } /* ZELENÁ */
-  body.dark-theme .ps-idle      { background: #3a1f00; color: #ffcc80; } /* ORANŽOVÁ */
-  body.dark-theme .ps-ready     { background: #1b3a1f; color: #81c784; } /* ZELENÁ */
-  body.dark-theme .ps-stopped   { background: #3b0f0f; color: #ef9a9a; } /* ČERVENÁ */
+  body.dark-theme .ps-finished  { background: #1b3a1f; color: #81c784; }
+  body.dark-theme .ps-idle      { background: #3a1f00; color: #ffcc80; }
+  body.dark-theme .ps-ready     { background: #1b3a1f; color: #81c784; }
+  body.dark-theme .ps-stopped   { background: #3b0f0f; color: #ef9a9a; }
   body.dark-theme .ps-error     { background: #3b0f0f; color: #ef9a9a; }
   body.dark-theme .ps-attention { background: #3a1f00; color: #ffcc80; }
   body.dark-theme .ps-offline   { background: #222; color: #555; }
   body.dark-theme .ps-unknown   { background: #222; color: #555; }
 
-  /* Progress bar pod printer-status ak tlačiareň tlačí */
-  .print-progress-bar {
-    height: 3px;
-    background: #e0e0e0;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: -6px;
-  }
-  .print-progress-fill {
-    height: 100%;
-    background: #4caf50;
-    border-radius: 2px;
-    transition: width 0.6s ease;
-  }
+  /* Progress bar */
+  .print-progress-bar { height: 3px; background: #e0e0e0; border-radius: 2px; overflow: hidden; margin-top: -6px; }
+  .print-progress-fill { height: 100%; background: #4caf50; border-radius: 2px; transition: width 0.6s ease; }
   body.dark-theme .print-progress-bar { background: #333; }
 
   /* LOADING SCREEN */
@@ -273,9 +276,6 @@
   /* ───────────────────────────────────────────────────────── */
   /* KOMPAKTNÝ REŽIM (COMPACT MODE)                            */
   /* ───────────────────────────────────────────────────────── */
-/* KOMPAKTNÝ REŽIM (COMPACT MODE) - OPTIMALIZÁCIA PRE FULL HD */
-  
-  /* Zmenšenie hlavičky a horného panela */
   body.compact-mode .header { padding: 6px 14px; min-height: unset; }
   body.compact-mode .mas-img, body.compact-mode .prusa-img { height: 26px; }
   body.compact-mode .header-logo-text .logo-bold { font-size: 18px; }
@@ -283,7 +283,6 @@
   body.compact-mode .controls { padding: 6px 14px 0; }
   body.compact-mode .btn-icon { padding: 4px 8px; font-size: 10px; }
 
-  /* Mriežka a samotné karty */
   body.compact-mode .dashboard { padding: 8px 14px; }
   body.compact-mode .section-row { gap: 8px; margin-bottom: 8px; }
   body.compact-mode .card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
@@ -291,13 +290,11 @@
   body.compact-mode .printer-type { font-size: 13px; }
   body.compact-mode .printer-name { font-size: 11px; }
   
-  /* Zúženie merača - automaticky sa tým zníži aj jeho výška */
   body.compact-mode .gauge-container { width: 80%; margin: 0 auto; }
   body.compact-mode .gauge-value { bottom: 4px; }
   body.compact-mode .val-text { font-size: 15px; }
   body.compact-mode .val-label { font-size: 8px; }
   
-  /* Detaily filamentu a štatistiky */
   body.compact-mode .material-row { min-height: 14px; gap: 4px; }
   body.compact-mode .color-dot { width: 12px; height: 12px; border-width: 1px; }
   body.compact-mode .material-name { font-size: 10px; }
@@ -306,17 +303,15 @@
   body.compact-mode .stat-label { font-size: 7px; }
   body.compact-mode .stat-value { font-size: 13px; }
   
-  /* Spodné štítky a čas */
   body.compact-mode .status-badge { font-size: 8px; padding: 2px 6px; }
   body.compact-mode .timestamp { font-size: 8px; margin-top: 0; }
   
-  /* Pravý horný roh (Prusa Status) */
   body.compact-mode .printer-status-top-right { top: 6px; right: 6px; gap: 0px; }
   body.compact-mode .ps-state { font-size: 9px; }
   body.compact-mode .ps-job { font-size: 8px; }
   body.compact-mode .ps-progress { font-size: 9px; }
 
-  /* RESPOSIVE */
+  /* RESPOSIVE pre pôvodný 3x5 layout */
   @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 768px) { 
@@ -371,6 +366,14 @@
         <input type="checkbox" id="cfgCompactMode" onchange="toggleCompactMode()">
         <span class="slider"></span>
       </label>
+    </div>
+
+    <div class="config-field">
+      <label class="config-label">Rozloženie mriežky</label>
+      <select class="config-input" id="cfgGrid" onchange="toggleGrid()">
+        <option value="3x5">3x5 (Zoskupené podľa typu)</option>
+        <option value="2x6">2x6 (Spolu 6 stĺpcov)</option>
+      </select>
     </div>
 
     <div class="config-field">
@@ -430,7 +433,8 @@ let CONFIG = {
   interval: parseInt(localStorage.getItem('interval') || '2'),
   threshold: parseInt(localStorage.getItem('threshold') || '50'),
   darkMode: localStorage.getItem('darkMode') === 'true',
-  compactMode: localStorage.getItem('compactMode') === 'true'
+  compactMode: localStorage.getItem('compactMode') === 'true',
+  grid: localStorage.getItem('grid') || '3x5'
 };
 let refreshTimer = null;
 let isInitialLoad = true;
@@ -443,6 +447,9 @@ if (CONFIG.darkMode) {
 if (CONFIG.compactMode) {
   document.body.classList.add('compact-mode');
   document.getElementById('cfgCompactMode').checked = true;
+}
+if (CONFIG.grid === '2x6') {
+  document.body.classList.add('grid-2x6');
 }
 
 const MK3S_SPOOLS = [
@@ -506,7 +513,6 @@ function renderCard(spool, data, index, printerData) {
 // LOGIKA PRE RELATÍVNY ČAS
   let timeText = "-";
   if (hasData && data.timestamp) {
-    // Vypočítame rozdiel medzi aktuálnym časom prehliadača a časom z dát
     const diffMs = new Date() - new Date(data.timestamp);
     const m = Math.max(0, Math.floor(diffMs / 60000));
     
@@ -515,7 +521,7 @@ function renderCard(spool, data, index, printerData) {
     else if (m < 1440) timeText = `pred ${Math.floor(m/60)} hod`;
     else timeText = `pred ${Math.floor(m/1440)} dňami`;
   } else if (hasData && data.ts) {
-    timeText = data.ts; // Záloha, ak by chýbal plný timestamp
+    timeText = data.ts;
   }
 
   const typeClass = 'type-' + spool.type.toLowerCase();
@@ -548,8 +554,6 @@ function renderCard(spool, data, index, printerData) {
     };
     
     const label = stLabels[st] || st;
-    
-    // Pridanie progressu do štítku, ak je stav printing a progress je dostupný
     const progressText = (st === 'printing' && printerData.progress != null) ? ` ${printerData.progress}%` : '';
     
     printerStatusHtml = `<span class="printer-status ps-${st}"><span class="ps-dot"></span>${label}${progressText}</span>`;
@@ -581,17 +585,14 @@ function renderCard(spool, data, index, printerData) {
 async function refreshData() {
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
-    // Fetch spool data + printer status paralelne
     const [spoolRes, printerRes] = await Promise.allSettled([
       fetch(URL + '?action=getData'),
       fetch(URL + '?action=getPrinterStatus')
     ]);
 
-    // Spracuj cievky
     const json = spoolRes.status === 'fulfilled' ? await spoolRes.value.json() : {};
     const map = {};
     
-    // Prechádzame kľúče JSON objektu, keďže to nie je pole
     for (const [id, data] of Object.entries(json)) {
       if (data && typeof data === 'object') {
         map[id] = {
@@ -612,7 +613,6 @@ async function refreshData() {
       if (map['spool-XL2-02']) { map['spool-XL2-02'].temp = map['spool-XL2-01'].temp; map['spool-XL2-02'].hum = map['spool-XL2-01'].hum; }
     }
 
-    // Spracuj tlačiarne
     const printerMap = {};
     if (printerRes.status === 'fulfilled') {
       try {
@@ -643,6 +643,7 @@ async function refreshData() {
 function openConfig() { 
   document.getElementById('cfgInterval').value = CONFIG.interval;
   document.getElementById('cfgThreshold').value = CONFIG.threshold;
+  document.getElementById('cfgGrid').value = CONFIG.grid;
   document.getElementById('configPanel').classList.add('open'); 
   document.getElementById('overlay').classList.add('show'); 
 }
@@ -659,6 +660,15 @@ function toggleCompactMode() {
   CONFIG.compactMode = document.getElementById('cfgCompactMode').checked;
   localStorage.setItem('compactMode', CONFIG.compactMode);
   document.body.classList.toggle('compact-mode', CONFIG.compactMode);
+}
+function toggleGrid() {
+  CONFIG.grid = document.getElementById('cfgGrid').value;
+  localStorage.setItem('grid', CONFIG.grid);
+  if (CONFIG.grid === '2x6') {
+    document.body.classList.add('grid-2x6');
+  } else {
+    document.body.classList.remove('grid-2x6');
+  }
 }
 function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
