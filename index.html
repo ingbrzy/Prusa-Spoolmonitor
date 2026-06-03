@@ -503,18 +503,19 @@ function renderCard(spool, data, index, printerData) {
   const material = isEmpty ? "-" : (data.material || "Neznámy");
   const color = isEmpty ? "transparent" : `#${data.color}`;
   
-  // LOGIKA PRE RELATÍVNY ČAS
-  let timeText = spool.id;
-  if (hasData && data.staleMinutes !== undefined && data.staleMinutes !== null) {
-    const m = data.staleMinutes;
+// LOGIKA PRE RELATÍVNY ČAS
+  let timeText = "-";
+  if (hasData && data.timestamp) {
+    // Vypočítame rozdiel medzi aktuálnym časom prehliadača a časom z dát
+    const diffMs = new Date() - new Date(data.timestamp);
+    const m = Math.max(0, Math.floor(diffMs / 60000));
+    
     if (m === 0) timeText = "práve teraz";
     else if (m < 60) timeText = `pred ${m} min`;
     else if (m < 1440) timeText = `pred ${Math.floor(m/60)} hod`;
     else timeText = `pred ${Math.floor(m/1440)} dňami`;
   } else if (hasData && data.ts) {
-    timeText = data.ts; // Záloha
-  } else {
-    timeText = "-";
+    timeText = data.ts; // Záloha, ak by chýbal plný timestamp
   }
 
   const typeClass = 'type-' + spool.type.toLowerCase();
