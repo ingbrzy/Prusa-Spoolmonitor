@@ -125,12 +125,11 @@
     flex-direction: column;
     gap: 10px;
     transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s, padding 0.3s, gap 0.3s;
-    cursor: grab; /* Indikátor pre ťahanie */
+    cursor: grab;
   }
   .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
   .card:active { cursor: grabbing; }
 
-  /* Tieto triedy pridáva SortableJS pri ťahaní */
   .sortable-ghost { opacity: 0.4; border: 2px dashed var(--orange) !important; background: var(--bg) !important; }
   .sortable-drag { opacity: 1 !important; transform: scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; z-index: 999; }
 
@@ -410,7 +409,7 @@
     <span class="last-update" id="lastUpdate">Čakám na dáta...</span>
   </div>
   <div style="display:flex; gap:8px;">
-    <button class="btn-icon" onclick="resetLayout()" title="Obnoviť predvolené rozloženie cievok">⟲ RESET</button>
+    <button id="resetBtn" class="btn-icon" onclick="resetLayout()" title="Obnoviť predvolené rozloženie cievok" style="display: none;">⟲ RESET</button>
     <button class="btn-icon" onclick="refreshData()">↻ OBNOVIŤ</button>
     <button class="btn-icon" onclick="openConfig()">⚙ NASTAVENIA</button>
   </div>
@@ -441,14 +440,13 @@ let CONFIG = {
 };
 let refreshTimer = null;
 let isInitialLoad = true;
-let isDragging = false; // Detekcia, či užívateľ práve hýbe kartou
+let isDragging = false; 
 
-// Inicializácia Tém
 if (CONFIG.darkMode) { document.body.classList.add('dark-theme'); document.getElementById('cfgDarkMode').checked = true; }
 if (CONFIG.compactMode) { document.body.classList.add('compact-mode'); document.getElementById('cfgCompactMode').checked = true; }
 if (CONFIG.grid === '2x6') { document.body.classList.add('grid-2x6'); document.getElementById('cfgGrid').value = '2x6'; }
 
-// ─── DEFINÍCIA CIEVOK A ICH PREDVOLENÉ ROZLOŽENIE ──────────────────────────
+// ─── DEFINÍCIA CIEVOK A PREDVOLENÉ ROZLOŽENIE ──────────────────────────────
 const ALL_SPOOLS = {
   'spool-01': { id: 'spool-01', label: 'PRUSA 01', type: 'MK3S' },
   'spool-02': { id: 'spool-02', label: 'PRUSA 02', type: 'MK3S' },
@@ -470,8 +468,13 @@ const DEFAULT_LAYOUT = {
   'row-xl2': ['spool-XL2-01', 'spool-XL2-02']
 };
 
-// Načítanie uloženého rozloženia alebo použitie predvoleného
 let currentLayout = JSON.parse(localStorage.getItem('layoutOrder')) || JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+
+// ─── LOGIKA ZOBRAZENIA TLAČIDLA RESET ──────────────────────────────────────
+function updateResetButtonVisibility() {
+  const isModified = JSON.stringify(currentLayout) !== JSON.stringify(DEFAULT_LAYOUT);
+  document.getElementById('resetBtn').style.display = isModified ? 'flex' : 'none';
+}
 
 // ─── GAUGE DRAWING ─────────────────────────────────────────────────────────
 function createGaugeSVG(value, max) {
@@ -547,7 +550,6 @@ function renderCard(spool, data, index, printerData) {
     }
   }
 
-  // Pridaný atribút data-id dôležitý pre Sortable.js
   return `<div class="card ${typeClass}${isEmpty ? ' empty-holder' : ''}${animClass}${alertClass}" data-id="${spool.id}" ${animStyle}>
     <div class="card-header"><span class="printer-type">${spool.type}</span><span class="printer-name">${spool.label}</span>${printerStatusHtml}</div>
     ${printProgressHtml}
@@ -571,12 +573,12 @@ function initSortable() {
   const rows = ['row-mk3s', 'row-xl', 'row-xl2'];
   rows.forEach(rowId => {
     new Sortable(document.getElementById(rowId), {
-      group: 'spools', // Zdiela rovnakú skupinu, takže môžete ťahať z riadku do riadku
+      group: 'spools',
       animation: 150,
       ghostClass: 'sortable-ghost',
       dragClass: 'sortable-drag',
       onStart: function () {
-        isDragging = true; // Zablokuje obnovu dát počas ťahania, aby sa predišlo vizuálnym chybám
+        isDragging = true; 
       },
       onEnd: function () {
         isDragging = false;
@@ -591,6 +593,9 @@ function saveLayoutOrder() {
   currentLayout['row-xl'] = Array.from(document.getElementById('row-xl').children).map(c => c.dataset.id);
   currentLayout['row-xl2'] = Array.from(document.getElementById('row-xl2').children).map(c => c.dataset.id);
   localStorage.setItem('layoutOrder', JSON.stringify(currentLayout));
+  
+  // Po každom presunutí skontrolujeme, či treba zobraziť tlačidlo
+  updateResetButtonVisibility();
 }
 
 function resetLayout() {
@@ -602,7 +607,7 @@ function resetLayout() {
 
 // ─── DATA FETCHING ─────────────────────────────────────────────────────────
 async function refreshData() {
-  if (isDragging) return; // Zabezpečenie: Nemeníme HTML kým užívateľ s kartou hybe
+  if (isDragging) return; 
 
   document.getElementById('refreshDot').style.background = '#ff9800';
   try {
@@ -637,7 +642,6 @@ async function refreshData() {
       } catch(e) {}
     }
 
-    // VYKRESLENIE PODĽA ULOŽENÉHO (ALEBO PREDVOLENÉHO) PORADIA
     ['row-mk3s', 'row-xl', 'row-xl2'].forEach(rowId => {
       document.getElementById(rowId).innerHTML = currentLayout[rowId].map((spoolId, i) => {
         return ALL_SPOOLS[spoolId] ? renderCard(ALL_SPOOLS[spoolId], map[spoolId], i, printerMap[spoolId]) : '';
@@ -649,7 +653,7 @@ async function refreshData() {
       setTimeout(() => {
         document.getElementById('loadingOverlay').classList.add('hidden');
         isInitialLoad = false;
-        initSortable(); // Inicializujeme Drag & Drop po prvom načítaní dát a zobrazení
+        initSortable(); 
       }, 800);
     }
   } catch (e) {
@@ -697,6 +701,7 @@ function saveAndLoad() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  updateResetButtonVisibility(); // Skontrolujeme hneď po načítaní stránky
   refreshData();
   setInterval(refreshData, CONFIG.interval * 60000);
 });
