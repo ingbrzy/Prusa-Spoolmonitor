@@ -231,10 +231,10 @@
   body.dark-theme .ps-offline   { background: #222; color: #555; }
   body.dark-theme .ps-unknown   { background: #222; color: #555; }
 
-  /* Progress bar (OPRAVENÉ POZICOVANIE) */
+  /* Progress bar */
   .print-progress-bar { 
     position: absolute; 
-    top: 44px; /* Vycentruje bar do medzery medzi headerom a budíkom */
+    top: 44px; 
     left: 18px; 
     right: 18px; 
     height: 3px; 
@@ -326,8 +326,7 @@
   body.compact-mode .ps-job { font-size: 8px; }
   body.compact-mode .ps-progress { font-size: 9px; }
 
-  @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
+  /* ZRUŠENIE KURZOROV NA MOBILOCH */
   @media (max-width: 768px) { 
     .section-row { grid-template-columns: repeat(2, 1fr); } 
     .mas-img, .prusa-img { height: 36px; }
@@ -335,6 +334,10 @@
     .header-logo-text .logo-light { font-size: 16px; }
     .header-logo-text .logo-dot { width: 6px; height: 6px; }
     .logo-text { gap: 8px; }
+    
+    /* Zrušenie grab kurzora ak je presúvanie neaktívne */
+    .card { cursor: default !important; }
+    .card:active { cursor: default !important; }
   }
   @media (max-width: 480px) { 
     .section-row { grid-template-columns: 1fr; } 
@@ -583,6 +586,13 @@ function renderCard(spool, data, index, printerData) {
 
 // ─── DRAG & DROP INITIALIZATION ────────────────────────────────────────────
 function initSortable() {
+  // Detekcia mobilného zariadenia (telefón alebo úzka obrazovka pod 768px)
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  
+  if (isMobile) {
+    return; // Presúvanie kariet na telefónoch vôbec neinicializujeme
+  }
+
   const rows = ['row-mk3s', 'row-xl', 'row-xl2'];
   rows.forEach(rowId => {
     new Sortable(document.getElementById(rowId), {
@@ -607,7 +617,6 @@ function saveLayoutOrder() {
   currentLayout['row-xl2'] = Array.from(document.getElementById('row-xl2').children).map(c => c.dataset.id);
   localStorage.setItem('layoutOrder', JSON.stringify(currentLayout));
   
-  // Po každom presunutí skontrolujeme, či treba zobraziť tlačidlo
   updateResetButtonVisibility();
 }
 
@@ -714,7 +723,7 @@ function saveAndLoad() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  updateResetButtonVisibility(); // Skontrolujeme hneď po načítaní stránky
+  updateResetButtonVisibility();
   refreshData();
   setInterval(refreshData, CONFIG.interval * 60000);
 });
