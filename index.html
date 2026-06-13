@@ -131,6 +131,12 @@
   .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
   .card:active { cursor: grabbing; }
 
+  /* Vypnutie kurzora na mobiloch, keďže tam presúvanie zakážeme */
+  @media (max-width: 768px) {
+    .card { cursor: default; }
+    .card:active { cursor: default; }
+  }
+
   .sortable-ghost { opacity: 0.4; border: 2px dashed var(--orange) !important; background: var(--bg) !important; }
   .sortable-drag { opacity: 1 !important; transform: scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important; z-index: 999; }
 
@@ -326,6 +332,8 @@
   body.compact-mode .ps-job { font-size: 8px; }
   body.compact-mode .ps-progress { font-size: 9px; }
 
+  @media (max-width: 1200px) { .section-row { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 992px) { .section-row { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 768px) { 
     .section-row { grid-template-columns: repeat(2, 1fr); } 
     .mas-img, .prusa-img { height: 36px; }
@@ -333,10 +341,6 @@
     .header-logo-text .logo-light { font-size: 16px; }
     .header-logo-text .logo-dot { width: 6px; height: 6px; }
     .logo-text { gap: 8px; }
-
-    /* Zrušenie grab kurzora ak je presúvanie neaktívne */
-    .card { cursor: default !important; }
-    .card:active { cursor: default !important; }    
   }
   @media (max-width: 480px) { 
     .section-row { grid-template-columns: 1fr; } 
@@ -588,6 +592,10 @@ function renderCard(spool, data, index, printerData) {
 
 // ─── DRAG & DROP INITIALIZATION ────────────────────────────────────────────
 function initSortable() {
+  // Inicializujeme Drag & Drop iba ak nie sme na mobilnom zariadeni
+  if (window.innerWidth <= 768) {
+    return;
+  }
   const rows = ['row-mk3s', 'row-xl', 'row-xl2'];
   rows.forEach(rowId => {
     new Sortable(document.getElementById(rowId), {
