@@ -333,6 +333,10 @@
     .header-logo-text .logo-light { font-size: 16px; }
     .header-logo-text .logo-dot { width: 6px; height: 6px; }
     .logo-text { gap: 8px; }
+
+    /* Zrušenie grab kurzora ak je presúvanie neaktívne */
+    .card { cursor: default !important; }
+    .card:active { cursor: default !important; }    
   }
   @media (max-width: 480px) { 
     .section-row { grid-template-columns: 1fr; } 
