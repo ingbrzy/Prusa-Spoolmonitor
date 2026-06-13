@@ -108,6 +108,15 @@
   @media (max-width: 768px) { body.grid-2x6 .dashboard { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { body.grid-2x6 .dashboard { grid-template-columns: 1fr; } }
 
+  /* ROZLOŽENIE MRIEŽKY (GRID 4x3) */
+  body.grid-4x3 .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  body.grid-4x3 .section-row { display: contents; }
+  body.compact-mode.grid-4x3 .dashboard { gap: 8px; }
+
+  @media (max-width: 1200px) { body.grid-4x3 .dashboard { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 992px) { body.grid-4x3 .dashboard { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { body.grid-4x3 .dashboard { grid-template-columns: 1fr; } }
+
   /* ANIMATIONS */
   @keyframes cardPop { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
   @keyframes gaugeFill { 0% { stroke-dashoffset: 232.48; } 100% { stroke-dashoffset: var(--target-offset); } }
@@ -393,6 +402,7 @@
       <select class="config-input" id="cfgGrid" onchange="toggleGrid()">
         <option value="3x5">3x5 (Zoskupené podľa typu)</option>
         <option value="2x6">2x6 (Spolu 6 stĺpcov)</option>
+        <option value="4x3">4x3 (Spolu 4 stĺpce)</option>
       </select>
     </div>
 
@@ -464,6 +474,7 @@ let isDragging = false;
 if (CONFIG.darkMode) { document.body.classList.add('dark-theme'); document.getElementById('cfgDarkMode').checked = true; }
 if (CONFIG.compactMode) { document.body.classList.add('compact-mode'); document.getElementById('cfgCompactMode').checked = true; }
 if (CONFIG.grid === '2x6') { document.body.classList.add('grid-2x6'); document.getElementById('cfgGrid').value = '2x6'; }
+if (CONFIG.grid === '4x3') { document.body.classList.add('grid-4x3'); document.getElementById('cfgGrid').value = '4x3'; }
 
 // ─── DEFINÍCIA CIEVOK A PREDVOLENÉ ROZLOŽENIE ──────────────────────────────
 const ALL_SPOOLS = {
@@ -714,8 +725,9 @@ function toggleCompactMode() {
 function toggleGrid() {
   CONFIG.grid = document.getElementById('cfgGrid').value;
   localStorage.setItem('grid', CONFIG.grid);
+  document.body.classList.remove('grid-2x6', 'grid-4x3');
   if (CONFIG.grid === '2x6') { document.body.classList.add('grid-2x6'); } 
-  else { document.body.classList.remove('grid-2x6'); }
+  else if (CONFIG.grid === '4x3') { document.body.classList.add('grid-4x3'); }
 }
 function saveAndLoad() {
   CONFIG.interval = parseInt(document.getElementById('cfgInterval').value) || 2;
